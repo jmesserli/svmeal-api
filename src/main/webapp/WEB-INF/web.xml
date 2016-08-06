@@ -9,7 +9,7 @@
         <servlet-class>org.glassfish.jersey.servlet.ServletContainer</servlet-class>
         <init-param>
             <param-name>jersey.config.server.provider.packages</param-name>
-            <param-value>nu.peg.svmeal.endpoint</param-value>
+            <param-value>io.swagger.jaxrs.listing,nu.peg.svmeal.endpoint</param-value>
         </init-param>
         <load-on-startup>1</load-on-startup>
     </servlet>
@@ -18,6 +18,20 @@
         <servlet-name>svmeal-endpoint</servlet-name>
         <url-pattern>/*</url-pattern>
     </servlet-mapping>
+
+    <servlet>
+        <servlet-name>SwaggerConfig</servlet-name>
+        <servlet-class>io.swagger.jersey.config.JerseyJaxrsConfig</servlet-class>
+        <init-param>
+            <param-name>api.version</param-name>
+            <param-value>0.1.0</param-value>
+        </init-param>
+        <init-param>
+            <param-name>swagger.api.basepath</param-name>
+            <param-value>https://svmeal-api.jmnw.me/</param-value>
+        </init-param>
+        <load-on-startup>2</load-on-startup>
+    </servlet>
 
     <!--<servlet>-->
     <!--<servlet-name>Jersey REST Service</servlet-name>-->
