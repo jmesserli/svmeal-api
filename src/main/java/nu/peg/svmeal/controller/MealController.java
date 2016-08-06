@@ -3,20 +3,33 @@ package nu.peg.svmeal.controller;
 import com.mashape.unirest.http.HttpResponse;
 import com.mashape.unirest.http.Unirest;
 import com.mashape.unirest.http.exceptions.UnirestException;
+import nu.peg.svmeal.converter.Converter;
+import nu.peg.svmeal.converter.DocumentToMealPlanDtoConverter;
 import nu.peg.svmeal.model.*;
 import org.jsoup.Jsoup;
 import org.jsoup.nodes.Document;
-import org.jsoup.select.Elements;
-
-import java.time.LocalDate;
-import java.time.format.DateTimeFormatter;
-import java.util.Arrays;
-import java.util.List;
-import java.util.stream.Collectors;
 
 @SuppressWarnings("Since15")
 public class MealController {
 
+    private Converter<Document, MealPlanDto> docToPlan;
+    private MealPlanResponseCache cache;
+
+    public MealController() {
+        this.docToPlan = new DocumentToMealPlanDtoConverter();
+
+        // values are cached for 5 minutes
+        this.cache = new MealPlanResponseCache(60 * 5);
+    }
+
+    /**
+     * Scrapes the menu plan from an SV-Group website and parses it into a {@link MealPlanDto}
+     *
+     * @param dayOffset  Offset in days into the future. E.g. if the sv-group website currently displays monday on the start page, an offset of 2 will return the meal plan for wednesday
+     * @param restaurant Which restaurant website to scrape the meal plan from
+     * @return The scraped {@link MealPlanDto}
+     */
+    @SuppressWarnings("WeakerAccess")
     public MealPlanResponse getMealPlan(int dayOffset, Restaurant restaurant) {
         HttpResponse<String> response;
         try {
@@ -29,32 +42,33 @@ public class MealController {
 
         if (response.getStatus() == 200) {
             Document document = Jsoup.parse(response.getBody());
-            Elements missingContent = document.select(".date-missing-content");
-            if (missingContent.isEmpty()) {
-                // Menu plan available here
+            MealPlanDto dto = docToPlan.convert(document);
 
-                String date = document.select(".date h2").text().split(",")[1].trim();
-                LocalDate localDate = LocalDate.parse(date, DateTimeFormatter.ofPattern("dd.MM.yyyy"));
-
-                Elements offers = document.select(".offer");
-                List<MenuOfferDto> offerDtos = offers.stream().map(offer -> new MenuOfferDto(
-                        offer.select(".offer-description").text(),
-                        offer.select(".title").text(),
-                        Arrays.stream(offer.select(".trimmings").html().split("<br>"))
-                              .map(String::trim).collect(Collectors.toList()),
-                        offer.select(".sidedish").text(),
-                        PriceDto.fromElements(offer.select(".price-item")),
-                        offer.select(".provenance").text()
-                )).collect(Collectors.toList());
-
-                return new MealPlanResponse(new MealPlanDto(localDate, offerDtos));
+            if (dto == null) {
+                return new MealPlanResponse(Response.Status.Error, "No meal plan available for this date");
             } else {
-                return new MealPlanResponse(Response.Status.Error, "No menu plan available for this date");
+                return new MealPlanResponse(dto);
             }
         } else {
             return new MealPlanResponse(Response.Status.Error, "Internal Server Error: Request failed");
         }
-
     }
 
+    /**
+     * The same as {@link #getMealPlan(int, Restaurant)}, but with a cache
+     *
+     * @see #getMealPlan(int, Restaurant)
+     */
+    public MealPlanResponse getMealPlanCached(int dayOffset, Restaurant restaurant) {
+        MealPlanResponse response = cache.get(dayOffset, restaurant);
+
+        if (response == null) {
+            MealPlanResponse newResponse = getMealPlan(dayOffset, restaurant);
+            cache.add(dayOffset, restaurant, newResponse);
+
+            return newResponse;
+        } else {
+            return response;
+        }
+    }
 }
