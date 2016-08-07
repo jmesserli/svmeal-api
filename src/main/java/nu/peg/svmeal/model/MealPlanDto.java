@@ -6,13 +6,13 @@ import java.util.ArrayList;
 import java.util.List;
 
 @SuppressWarnings("Since15")
-public class MealPlanDto implements Serializable{
+public class MealPlanDto implements Serializable {
 
     public LocalDate date;
     public List<MenuOfferDto> offers;
 
     public MealPlanDto() {
-        offers = new ArrayList<MenuOfferDto>();
+        offers = new ArrayList<>();
     }
 
     public MealPlanDto(LocalDate date, List<MenuOfferDto> offers) {

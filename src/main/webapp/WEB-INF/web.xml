@@ -20,6 +20,7 @@
     </servlet-mapping>
 
     <servlet>
+        <!--suppress ServletWithoutMappingInspection -->
         <servlet-name>SwaggerConfig</servlet-name>
         <servlet-class>io.swagger.jersey.config.JerseyJaxrsConfig</servlet-class>
         <init-param>

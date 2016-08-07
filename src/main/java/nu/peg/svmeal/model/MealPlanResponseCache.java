@@ -4,8 +4,8 @@ import nu.peg.svmeal.persistence.CacheDatabaseHandler;
 
 public class MealPlanResponseCache {
 
-    private int maxAge;
-    private CacheDatabaseHandler dbHandler;
+    private final int maxAge;
+    private final CacheDatabaseHandler dbHandler;
 
     /**
      * @param maxAge Maximum age of cached value in seconds

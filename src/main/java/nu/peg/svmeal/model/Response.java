@@ -17,8 +17,8 @@ public class Response<T> implements Serializable {
         this.data = data;
     }
 
-    public Response(Status status, String error) {
-        this.status = status;
+    public Response(String error) {
+        this.status = Status.Error;
         this.error = error;
     }
 

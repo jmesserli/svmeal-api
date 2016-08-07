@@ -3,6 +3,7 @@ package nu.peg.svmeal.converter;
 import nu.peg.svmeal.model.MealPlanDto;
 import nu.peg.svmeal.model.MenuOfferDto;
 import nu.peg.svmeal.model.PriceDto;
+
 import org.jsoup.nodes.Document;
 import org.jsoup.select.Elements;
 

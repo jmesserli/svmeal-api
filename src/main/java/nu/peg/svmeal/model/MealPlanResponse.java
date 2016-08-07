@@ -9,8 +9,8 @@ public class MealPlanResponse extends Response<MealPlanDto> {
         super(data);
     }
 
-    public MealPlanResponse(Status status, String error) {
-        super(status, error);
+    public MealPlanResponse(String error) {
+        super(error);
     }
 
     public MealPlanResponse(Status status, MealPlanDto data, String error) {
