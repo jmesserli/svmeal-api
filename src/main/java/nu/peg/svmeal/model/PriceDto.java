@@ -3,7 +3,9 @@ package nu.peg.svmeal.model;
 import org.jsoup.nodes.Element;
 import org.jsoup.select.Elements;
 
-public class PriceDto {
+import java.io.Serializable;
+
+public class PriceDto implements Serializable {
 
     public double internalPrice;
     public double externalPrice;

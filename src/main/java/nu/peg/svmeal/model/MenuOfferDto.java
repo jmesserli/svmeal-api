@@ -1,8 +1,9 @@
 package nu.peg.svmeal.model;
 
+import java.io.Serializable;
 import java.util.List;
 
-public class MenuOfferDto {
+public class MenuOfferDto implements Serializable {
     public String description;
 
     public String title;

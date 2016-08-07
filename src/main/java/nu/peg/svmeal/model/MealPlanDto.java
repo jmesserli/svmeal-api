@@ -1,11 +1,12 @@
 package nu.peg.svmeal.model;
 
+import java.io.Serializable;
 import java.time.LocalDate;
 import java.util.ArrayList;
 import java.util.List;
 
 @SuppressWarnings("Since15")
-public class MealPlanDto {
+public class MealPlanDto implements Serializable{
 
     public LocalDate date;
     public List<MenuOfferDto> offers;

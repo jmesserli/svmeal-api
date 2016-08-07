@@ -16,10 +16,10 @@ import java.util.Optional;
 @Produces(MediaType.APPLICATION_JSON)
 public class MealEndpoint {
 
-    private MealController controller;
+    private static MealController controller;
 
     public MealEndpoint() {
-        controller = new MealController();
+        if (controller == null) controller = new MealController();
     }
 
     @GET

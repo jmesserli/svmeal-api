@@ -1,7 +1,9 @@
 package nu.peg.svmeal.model;
 
 
-public class Response<T> {
+import java.io.Serializable;
+
+public class Response<T> implements Serializable {
 
     public Status status;
     public T data;

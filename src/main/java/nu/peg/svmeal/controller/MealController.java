@@ -9,7 +9,6 @@ import nu.peg.svmeal.model.*;
 import org.jsoup.Jsoup;
 import org.jsoup.nodes.Document;
 
-@SuppressWarnings("Since15")
 public class MealController {
 
     private Converter<Document, MealPlanDto> docToPlan;
@@ -19,7 +18,7 @@ public class MealController {
         this.docToPlan = new DocumentToMealPlanDtoConverter();
 
         // values are cached for 5 minutes
-        this.cache = new MealPlanResponseCache(60 * 5);
+        this.cache = new MealPlanResponseCache(5 * 60);
     }
 
     /**
@@ -31,6 +30,8 @@ public class MealController {
      */
     @SuppressWarnings("WeakerAccess")
     public MealPlanResponse getMealPlan(int dayOffset, Restaurant restaurant) {
+        System.err.printf("Scraping meal plan for %d@%s%n", dayOffset, restaurant);
+
         HttpResponse<String> response;
         try {
             response = Unirest.get(restaurant.getBaseUrl() + "/de/menuplan.html")
