@@ -1,18 +1,22 @@
 package nu.peg.svmeal.persistence;
 
+import nu.peg.svmeal.AppInitializer;
 import nu.peg.svmeal.model.MealPlanResponse;
 import nu.peg.svmeal.model.Restaurant;
 
 import java.io.ByteArrayInputStream;
 import java.io.ByteArrayOutputStream;
+import java.io.IOException;
 import java.io.ObjectInputStream;
 import java.io.ObjectOutputStream;
 import java.sql.Connection;
-import java.sql.DriverManager;
 import java.sql.PreparedStatement;
 import java.sql.ResultSet;
 import java.sql.SQLException;
 import java.sql.Statement;
+import java.util.logging.Level;
+
+import static nu.peg.svmeal.AppInitializer.logger;
 
 public class CacheDatabaseHandler {
 
@@ -20,15 +24,14 @@ public class CacheDatabaseHandler {
 
     public CacheDatabaseHandler() {
         try {
-            Class.forName("org.sqlite.JDBC");
             init();
-        } catch (SQLException | ClassNotFoundException e) {
-            e.printStackTrace();
+        } catch (SQLException e) {
+            logger.log(Level.SEVERE, "Cannot initialize cache database", e);
         }
     }
 
     private void init() throws SQLException {
-        connection = DriverManager.getConnection("jdbc:sqlite:cache.db");
+        connection = AppInitializer.dbConnection;
 
         Statement stmt = connection.createStatement();
         stmt.executeUpdate("CREATE TABLE IF NOT EXISTS cache (dayoffset INT NOT NULL, restaurant INT NOT NULL, response BLOB NOT NULL, timestamp INT NOT NULL) ");
@@ -42,8 +45,8 @@ public class CacheDatabaseHandler {
             ObjectOutputStream oos = new ObjectOutputStream(baos);
             oos.writeObject(response);
             oos.flush();
-        } catch (Exception e) {
-            e.printStackTrace();
+        } catch (IOException e) {
+            logger.log(Level.SEVERE, String.format("Cannot serialize object %s", response), e);
         }
 
         byte[] responseBytes = baos.toByteArray();
@@ -64,8 +67,8 @@ public class CacheDatabaseHandler {
             stmt.setLong(4, System.currentTimeMillis());
 
             stmt.execute();
-        } catch (Exception e) {
-            e.printStackTrace();
+        } catch (SQLException e) {
+            logger.log(Level.SEVERE, "Cannot insert blob into cache database", e);
         }
     }
 
@@ -100,8 +103,8 @@ public class CacheDatabaseHandler {
             stmt.setLong(1, System.currentTimeMillis());
             stmt.setInt(2, maxAge);
             stmt.execute();
-        } catch (Exception e) {
-            e.printStackTrace();
+        } catch (SQLException e) {
+            logger.log(Level.SEVERE, "Cannot clean old cache objects", e);
         }
     }
 

@@ -5,7 +5,7 @@
     <modelVersion>4.0.0</modelVersion>
     <groupId>nu.peg</groupId>
     <artifactId>svgroup-mealapi</artifactId>
-    <version>1.0.1</version>
+    <version>1.0.2</version>
 
     <packaging>war</packaging>
 
@@ -55,6 +55,11 @@
             <groupId>org.xerial</groupId>
             <artifactId>sqlite-jdbc</artifactId>
             <version>3.8.11.2</version>
+        </dependency>
+        <dependency>
+            <groupId>javax.servlet</groupId>
+            <artifactId>servlet-api</artifactId>
+            <version>2.5</version>
         </dependency>
     </dependencies>
 

@@ -14,6 +14,8 @@ import nu.peg.svmeal.model.Restaurant;
 import org.jsoup.Jsoup;
 import org.jsoup.nodes.Document;
 
+import static nu.peg.svmeal.AppInitializer.logger;
+
 public class MealController {
 
     private final Converter<Document, MealPlanDto> docToPlan;
@@ -37,7 +39,7 @@ public class MealController {
      */
     @SuppressWarnings("WeakerAccess")
     public MealPlanResponse getMealPlan(int dayOffset, Restaurant restaurant) {
-        System.err.printf("Scraping meal plan for %d@%s%n", dayOffset, restaurant);
+        logger.fine(String.format("Scraping meal plan for %d@%s", dayOffset, restaurant));
 
         HttpResponse<String> response;
         try {
@@ -45,6 +47,7 @@ public class MealController {
                               .queryString("addGP[shift]", dayOffset)
                               .asString();
         } catch (UnirestException e) {
+            logger.warning("Exception while requesting meal plan");
             return new MealPlanResponse("Internal Server Error: UnirestException");
         }
 
@@ -71,11 +74,13 @@ public class MealController {
         MealPlanResponse response = cache.get(dayOffset, restaurant);
 
         if (response == null) {
+            logger.fine(String.format("Value not cached: %d@%s, scraping", dayOffset, restaurant));
             MealPlanResponse newResponse = getMealPlan(dayOffset, restaurant);
             cache.add(dayOffset, restaurant, newResponse);
 
             return newResponse;
         } else {
+            logger.finer(String.format("Returning cached response for %d@%s: %s", dayOffset, restaurant, response));
             return response;
         }
     }

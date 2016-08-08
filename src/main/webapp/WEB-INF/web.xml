@@ -25,7 +25,7 @@
         <servlet-class>io.swagger.jersey.config.JerseyJaxrsConfig</servlet-class>
         <init-param>
             <param-name>api.version</param-name>
-            <param-value>1.0.1</param-value>
+            <param-value>1.0.2</param-value>
         </init-param>
         <init-param>
             <param-name>swagger.api.basepath</param-name>
@@ -33,6 +33,11 @@
         </init-param>
         <load-on-startup>2</load-on-startup>
     </servlet>
+
+    <!-- App Initializer -->
+    <listener>
+        <listener-class>nu.peg.svmeal.AppInitializer</listener-class>
+    </listener>
 
     <!--<servlet>-->
     <!--<servlet-name>Jersey REST Service</servlet-name>-->
