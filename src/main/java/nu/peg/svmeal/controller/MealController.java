@@ -14,6 +14,8 @@ import nu.peg.svmeal.model.Restaurant;
 import org.jsoup.Jsoup;
 import org.jsoup.nodes.Document;
 
+import java.util.logging.Level;
+
 import static nu.peg.svmeal.AppInitializer.logger;
 
 public class MealController {
@@ -24,8 +26,19 @@ public class MealController {
     public MealController() {
         this.docToPlan = new DocumentToMealPlanDtoConverter();
 
-        // values are cached for 5 minutes
-        this.cache = new MealPlanResponseCache(5 * 60);
+        // values are cached for 5 minutes if not otherwise specified
+        int cacheSeconds = 5 * 60;
+
+        try {
+            String timeoutString = System.getProperty("cacheTimeout");
+            if (timeoutString != null && !timeoutString.isEmpty()) {
+                cacheSeconds = Integer.parseInt(timeoutString);
+            }
+        } catch (NumberFormatException nfe) {
+            logger.log(Level.WARNING, "Illegal cache timeout in seconds passed", nfe);
+        }
+
+        this.cache = new MealPlanResponseCache(cacheSeconds);
     }
 
     /**
