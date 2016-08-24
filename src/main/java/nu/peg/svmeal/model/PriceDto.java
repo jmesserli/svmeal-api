@@ -12,8 +12,6 @@ public class PriceDto implements Serializable {
     public double internalPrice;
     public double externalPrice;
 
-    public String comment = "internalPrice is for employees of the enterprise the restaurant belongs to, externalPrice for non-employees";
-
     public PriceDto() {
     }
 
