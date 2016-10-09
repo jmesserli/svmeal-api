@@ -15,11 +15,11 @@ public class MealPlanResponseCache {
         this.dbHandler = new CacheDatabaseHandler();
     }
 
-    public void add(int dayOffset, Restaurant restaurant, MealPlanResponse response) {
+    public void add(int dayOffset, SvRestaurant restaurant, MealPlanResponse response) {
         dbHandler.add(dayOffset, restaurant, response);
     }
 
-    public MealPlanResponse get(int dayOffset, Restaurant restaurant) {
+    public MealPlanResponse get(int dayOffset, SvRestaurant restaurant) {
         dbHandler.cleanOld(maxAge);
         return dbHandler.get(dayOffset, restaurant);
     }

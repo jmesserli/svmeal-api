@@ -7,6 +7,7 @@ import com.mashape.unirest.http.exceptions.UnirestException;
 import nu.peg.svmeal.converter.Converter;
 import nu.peg.svmeal.converter.DocumentToMealPlanDtoConverter;
 import nu.peg.svmeal.model.*;
+import nu.peg.svmeal.util.HttpUtil;
 
 import org.jsoup.Jsoup;
 import org.jsoup.nodes.Document;
@@ -48,12 +49,14 @@ public class MealController {
      * @return The scraped {@link MealPlanDto}
      */
     @SuppressWarnings("WeakerAccess")
-    public MealPlanResponse getMealPlan(int dayOffset, Restaurant restaurant) {
+    public MealPlanResponse getMealPlan(int dayOffset, SvRestaurant restaurant) {
         logger.fine(String.format("Scraping meal plan for %d@%s", dayOffset, restaurant));
 
         HttpResponse<String> response;
         try {
-            response = Unirest.get(restaurant.getBaseUrl() + "/de/menuplan.html")
+            String restaurantLink = HttpUtil.followRedirectsAndGetUrl(restaurant.getLink());
+
+            response = Unirest.get(restaurantLink)
                               .queryString("addGP[shift]", dayOffset)
                               .asString();
         } catch (UnirestException e) {
@@ -76,11 +79,11 @@ public class MealController {
     }
 
     /**
-     * The same as {@link #getMealPlan(int, Restaurant)}, but with a cache
+     * The same as {@link #getMealPlan(int, SvRestaurant)}, but with a cache
      *
-     * @see #getMealPlan(int, Restaurant)
+     * @see #getMealPlan(int, SvRestaurant)
      */
-    public MealPlanResponse getMealPlanCached(int dayOffset, Restaurant restaurant) {
+    public MealPlanResponse getMealPlanCached(int dayOffset, SvRestaurant restaurant) {
         MealPlanResponse response = cache.get(dayOffset, restaurant);
 
         if (response == null) {

@@ -1,8 +1,7 @@
 package nu.peg.svmeal.persistence;
 
 import nu.peg.svmeal.AppInitializer;
-import nu.peg.svmeal.model.MealPlanResponse;
-import nu.peg.svmeal.model.Restaurant;
+import nu.peg.svmeal.model.*;
 
 import java.io.*;
 import java.sql.*;
@@ -26,10 +25,10 @@ public class CacheDatabaseHandler {
         connection = AppInitializer.dbConnection;
 
         Statement stmt = connection.createStatement();
-        stmt.executeUpdate("CREATE TABLE IF NOT EXISTS cache (dayoffset INT NOT NULL, restaurant INT NOT NULL, response BLOB NOT NULL, timestamp INT NOT NULL) ");
+        stmt.executeUpdate("CREATE TABLE IF NOT EXISTS cache (dayoffset INT NOT NULL, restaurant TEXT NOT NULL, response BLOB NOT NULL, timestamp INT NOT NULL) ");
     }
 
-    public void add(int dayOffset, Restaurant restaurant, MealPlanResponse response) {
+    public void add(int dayOffset, SvRestaurant restaurant, MealPlanResponse response) {
         // Serialize response
 
         ByteArrayOutputStream baos = new ByteArrayOutputStream();
@@ -48,13 +47,13 @@ public class CacheDatabaseHandler {
             String query = "DELETE FROM cache WHERE dayoffset = ? AND restaurant = ?";
             PreparedStatement stmt = getConnection().prepareStatement(query);
             stmt.setInt(1, dayOffset);
-            stmt.setInt(2, restaurant.ordinal());
+            stmt.setString(2, restaurant.getId());
             stmt.execute();
 
             query = "INSERT INTO cache (dayoffset, restaurant, response, timestamp) VALUES (?, ?, ?, ?)";
             stmt = getConnection().prepareStatement(query);
             stmt.setInt(1, dayOffset);
-            stmt.setInt(2, restaurant.ordinal());
+            stmt.setString(2, restaurant.getId());
             stmt.setBytes(3, responseBytes);
             stmt.setLong(4, System.currentTimeMillis());
 
@@ -64,12 +63,12 @@ public class CacheDatabaseHandler {
         }
     }
 
-    public MealPlanResponse get(int dayOffset, Restaurant restaurant) {
+    public MealPlanResponse get(int dayOffset, SvRestaurant restaurant) {
         String query = "SELECT response, timestamp FROM cache WHERE dayoffset = ? AND restaurant = ? ORDER BY timestamp DESC LIMIT 1";
         try {
             PreparedStatement stmt = getConnection().prepareStatement(query);
             stmt.setInt(1, dayOffset);
-            stmt.setInt(2, restaurant.ordinal());
+            stmt.setString(2, restaurant.getId());
 
             ResultSet results = stmt.executeQuery();
             if (!results.next()) return null;
