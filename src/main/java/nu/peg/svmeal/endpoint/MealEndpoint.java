@@ -1,16 +1,11 @@
 package nu.peg.svmeal.endpoint;
 
 import nu.peg.svmeal.controller.MealController;
-import nu.peg.svmeal.model.MealPlanDto;
-import nu.peg.svmeal.model.Response;
-import nu.peg.svmeal.model.Restaurant;
+import nu.peg.svmeal.model.*;
 
 import java.util.Optional;
 
-import javax.ws.rs.GET;
-import javax.ws.rs.Path;
-import javax.ws.rs.PathParam;
-import javax.ws.rs.Produces;
+import javax.ws.rs.*;
 import javax.ws.rs.core.MediaType;
 
 @Path("/api")

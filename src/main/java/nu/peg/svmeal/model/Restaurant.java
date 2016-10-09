@@ -13,7 +13,6 @@ public enum Restaurant {
     }
 
     public static Optional<Restaurant> fromString(String restaurantString) {
-
         restaurantString = restaurantString.toUpperCase();
 
         for (Restaurant restaurant : values()) {

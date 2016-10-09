@@ -6,10 +6,7 @@ import com.mashape.unirest.http.exceptions.UnirestException;
 
 import nu.peg.svmeal.converter.Converter;
 import nu.peg.svmeal.converter.DocumentToMealPlanDtoConverter;
-import nu.peg.svmeal.model.MealPlanDto;
-import nu.peg.svmeal.model.MealPlanResponse;
-import nu.peg.svmeal.model.MealPlanResponseCache;
-import nu.peg.svmeal.model.Restaurant;
+import nu.peg.svmeal.model.*;
 
 import org.jsoup.Jsoup;
 import org.jsoup.nodes.Document;

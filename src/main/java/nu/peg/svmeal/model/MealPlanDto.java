@@ -1,5 +1,8 @@
 package nu.peg.svmeal.model;
 
+import com.fasterxml.jackson.databind.annotation.JsonSerialize;
+import com.fasterxml.jackson.databind.ser.std.ToStringSerializer;
+
 import java.io.Serializable;
 import java.time.LocalDate;
 import java.util.ArrayList;
@@ -7,7 +10,7 @@ import java.util.List;
 
 @SuppressWarnings("Since15")
 public class MealPlanDto implements Serializable {
-
+    @JsonSerialize(using = ToStringSerializer.class)
     public LocalDate date;
     public List<MenuOfferDto> offers;
 

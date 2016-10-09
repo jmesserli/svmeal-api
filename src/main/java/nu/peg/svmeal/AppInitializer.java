@@ -2,12 +2,14 @@ package nu.peg.svmeal;
 
 import com.mashape.unirest.http.Unirest;
 
+import nu.peg.svmeal.model.RestaurantDto;
+import nu.peg.svmeal.model.SvRestaurant;
+
 import java.io.IOException;
 import java.nio.file.Files;
 import java.nio.file.Path;
-import java.sql.Connection;
-import java.sql.DriverManager;
-import java.sql.SQLException;
+import java.sql.*;
+import java.util.List;
 import java.util.logging.Logger;
 
 import javax.servlet.ServletContextEvent;
@@ -17,6 +19,8 @@ public class AppInitializer implements ServletContextListener {
 
     public static Connection dbConnection;
     public static Logger logger;
+    public static List<SvRestaurant> restaurants;
+    public static List<RestaurantDto> restaurantDtos;
 
     @Override
     public void contextInitialized(ServletContextEvent servletContextEvent) {
