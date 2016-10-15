@@ -2,13 +2,18 @@ package nu.peg.svmeal.endpoint;
 
 import nu.peg.svmeal.controller.MealController;
 import nu.peg.svmeal.controller.RestaurantController;
-import nu.peg.svmeal.model.*;
+import nu.peg.svmeal.model.AvailabilityDto;
+import nu.peg.svmeal.model.MealPlanDto;
+import nu.peg.svmeal.model.Response;
+import nu.peg.svmeal.model.SvRestaurant;
 
+import javax.ws.rs.GET;
+import javax.ws.rs.Path;
+import javax.ws.rs.PathParam;
+import javax.ws.rs.Produces;
+import javax.ws.rs.core.MediaType;
 import java.util.List;
 import java.util.Optional;
-
-import javax.ws.rs.*;
-import javax.ws.rs.core.MediaType;
 
 @Path("/api")
 @Produces(MediaType.APPLICATION_JSON)
@@ -35,6 +40,17 @@ public class MealEndpoint {
 
         if (restaurant.isPresent())
             return mealController.getMealPlanCached(dayOffset, restaurant.get());
+        else
+            return new Response<>("Invalid restaurant");
+    }
+
+    @GET
+    @Path("/restaurant/{restaurant}/meal/{dayOffset}/available")
+    public Response<AvailabilityDto> getMealPlanAvailability(@PathParam("restaurant") String restaurantString, @PathParam("dayOffset") int dayOffset) {
+        Optional<SvRestaurant> restaurant = findRestaurant(restaurantString);
+
+        if (restaurant.isPresent())
+            return mealController.getAvailability(dayOffset, restaurant.get());
         else
             return new Response<>("Invalid restaurant");
     }

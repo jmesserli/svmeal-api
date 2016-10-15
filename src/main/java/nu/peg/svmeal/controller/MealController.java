@@ -3,12 +3,10 @@ package nu.peg.svmeal.controller;
 import com.mashape.unirest.http.HttpResponse;
 import com.mashape.unirest.http.Unirest;
 import com.mashape.unirest.http.exceptions.UnirestException;
-
 import nu.peg.svmeal.converter.Converter;
 import nu.peg.svmeal.converter.DocumentToMealPlanDtoConverter;
 import nu.peg.svmeal.model.*;
 import nu.peg.svmeal.util.HttpUtil;
-
 import org.jsoup.Jsoup;
 import org.jsoup.nodes.Document;
 
@@ -20,6 +18,7 @@ public class MealController {
 
     private final Converter<Document, MealPlanDto> docToPlan;
     private final MealPlanResponseCache cache;
+    private final String NO_MEALPLAN_AVAILABLE_ERROR = "No meal plan available for this date";
 
     public MealController() {
         this.docToPlan = new DocumentToMealPlanDtoConverter();
@@ -40,6 +39,18 @@ public class MealController {
     }
 
     /**
+     * Checks if a meal plan is available for the given dayOffset and restaurant
+     *
+     * @see #getMealPlan(int, SvRestaurant)
+     */
+    public Response<AvailabilityDto> getAvailability(int dayOffset, SvRestaurant restaurant) {
+        MealPlanResponse response = getMealPlanCached(dayOffset, restaurant);
+
+        boolean available = response.getStatus() != Response.Status.Error || !response.getError().equals(NO_MEALPLAN_AVAILABLE_ERROR);
+        return new Response<>(new AvailabilityDto(available));
+    }
+
+    /**
      * Scrapes the menu plan from an SV-Group website and parses it into a {@link MealPlanDto}
      *
      * @param dayOffset  Offset in days into the future. E.g. if the sv-group website currently
@@ -57,8 +68,8 @@ public class MealController {
             String restaurantLink = HttpUtil.followRedirectsAndGetUrl(restaurant.getLink());
 
             response = Unirest.get(restaurantLink)
-                              .queryString("addGP[shift]", dayOffset)
-                              .asString();
+                    .queryString("addGP[shift]", dayOffset)
+                    .asString();
         } catch (UnirestException e) {
             logger.warning("Exception while requesting meal plan");
             return new MealPlanResponse("Internal Server Error: UnirestException");
@@ -69,7 +80,7 @@ public class MealController {
             MealPlanDto dto = docToPlan.convert(document);
 
             if (dto == null) {
-                return new MealPlanResponse("No meal plan available for this date");
+                return new MealPlanResponse(NO_MEALPLAN_AVAILABLE_ERROR);
             } else {
                 return new MealPlanResponse(dto);
             }
