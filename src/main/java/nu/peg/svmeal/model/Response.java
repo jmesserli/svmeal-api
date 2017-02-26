@@ -1,6 +1,5 @@
 package nu.peg.svmeal.model;
 
-
 import java.io.Serializable;
 
 public class Response<T> implements Serializable {
@@ -43,5 +42,4 @@ public class Response<T> implements Serializable {
     public enum Status {
         Ok, Error
     }
-
 }

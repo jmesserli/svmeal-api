@@ -1,7 +1,10 @@
 package nu.peg.svmeal.util;
 
 import org.apache.http.client.methods.HttpGet;
-import org.apache.http.impl.client.*;
+import org.apache.http.impl.client.CloseableHttpClient;
+import org.apache.http.impl.client.DefaultRedirectStrategy;
+import org.apache.http.impl.client.HttpClients;
+import org.apache.http.impl.client.RedirectLocations;
 import org.apache.http.protocol.BasicHttpContext;
 import org.apache.http.protocol.HttpContext;
 
@@ -20,11 +23,13 @@ public final class HttpUtil {
             e.printStackTrace();
         }
 
-        URI finalUrl = httpGet.getURI();
+        URI finalUri = httpGet.getURI();
         RedirectLocations locations = (RedirectLocations) context.getAttribute(DefaultRedirectStrategy.REDIRECT_LOCATIONS);
-        if (locations != null) finalUrl = locations.get(locations.size() - 1);
+        if (locations != null) {
+            finalUri = locations.get(locations.size() - 1);
+        }
 
-        return finalUrl.toString();
+        return finalUri.toString();
     }
 
 }
