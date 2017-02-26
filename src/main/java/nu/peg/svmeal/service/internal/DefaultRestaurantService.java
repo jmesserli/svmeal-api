@@ -11,6 +11,8 @@ import nu.peg.svmeal.model.SvRestaurant;
 import nu.peg.svmeal.service.RestaurantService;
 import org.json.JSONArray;
 import org.json.JSONObject;
+import org.slf4j.Logger;
+import org.slf4j.LoggerFactory;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.cache.annotation.Cacheable;
 import org.springframework.stereotype.Service;
@@ -21,8 +23,13 @@ import java.util.List;
 import java.util.Map;
 import java.util.stream.Collectors;
 
+import static nu.peg.svmeal.util.CacheRegistry.RESTAURANTS;
+import static nu.peg.svmeal.util.CacheRegistry.RESTAURANT_DTOS;
+
 @Service
 public class DefaultRestaurantService implements RestaurantService {
+    private static final Logger LOGGER = LoggerFactory.getLogger(DefaultRestaurantService.class);
+
     private final Gson gson;
     private final Converter<SvRestaurant, RestaurantDto> restaurantConverter;
 
@@ -33,8 +40,9 @@ public class DefaultRestaurantService implements RestaurantService {
     }
 
     @Override
-    @Cacheable("restaurants")
+    @Cacheable(RESTAURANTS)
     public List<SvRestaurant> getRestaurants() {
+        LOGGER.info("Fetching restaurant list");
         Map<String, Object> formData = new HashMap<>();
         formData.put("searchfield", "");
         formData.put("typeofrestaurant", 1);
@@ -63,7 +71,7 @@ public class DefaultRestaurantService implements RestaurantService {
     }
 
     @Override
-    @Cacheable("restaurantDtos")
+    @Cacheable(RESTAURANT_DTOS)
     public List<RestaurantDto> getRestaurantDtos() {
         return this.getRestaurants().stream().map(restaurantConverter::convert).collect(Collectors.toList());
     }

@@ -12,7 +12,10 @@ import org.jsoup.nodes.Document;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 import org.springframework.beans.factory.annotation.Autowired;
+import org.springframework.cache.annotation.Cacheable;
 import org.springframework.stereotype.Service;
+
+import static nu.peg.svmeal.util.CacheRegistry.MEAL_PLAN;
 
 @Service
 public class DefaultMealService implements MealService {
@@ -50,6 +53,7 @@ public class DefaultMealService implements MealService {
      * @return The scraped {@link MealPlanDto}
      */
     @Override
+    @Cacheable(MEAL_PLAN)
     public MealPlanResponse getMealPlan(int dayOffset, SvRestaurant restaurant) {
         LOGGER.debug("Scraping meal plan for {}@{}", dayOffset, restaurant);
 
