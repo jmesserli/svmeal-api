@@ -1,11 +1,11 @@
 package nu.peg.svmeal.endpoint;
 
-import nu.peg.svmeal.controller.MealController;
 import nu.peg.svmeal.controller.RestaurantController;
 import nu.peg.svmeal.model.AvailabilityDto;
 import nu.peg.svmeal.model.MealPlanDto;
 import nu.peg.svmeal.model.Response;
 import nu.peg.svmeal.model.SvRestaurant;
+import nu.peg.svmeal.service.internal.DefaultMealService;
 
 import javax.ws.rs.GET;
 import javax.ws.rs.Path;
@@ -19,11 +19,11 @@ import java.util.Optional;
 @Produces(MediaType.APPLICATION_JSON)
 public class MealEndpoint {
 
-    private MealController mealController;
+    private DefaultMealService defaultMealService;
     private RestaurantController restaurantController;
 
     public MealEndpoint() {
-        mealController = new MealController();
+        defaultMealService = new DefaultMealService();
         restaurantController = new RestaurantController();
     }
 
@@ -38,10 +38,11 @@ public class MealEndpoint {
     public Response<MealPlanDto> getRestaurantMealOffset(@PathParam("restaurant") String restaurantString, @PathParam("dayOffset") int dayOffset) {
         Optional<SvRestaurant> restaurant = findRestaurant(restaurantString);
 
-        if (restaurant.isPresent())
-            return mealController.getMealPlanCached(dayOffset, restaurant.get());
-        else
+        if (restaurant.isPresent()) {
+            return defaultMealService.getMealPlanCached(dayOffset, restaurant.get());
+        } else {
             return new Response<>("Invalid restaurant");
+        }
     }
 
     @GET
@@ -49,10 +50,11 @@ public class MealEndpoint {
     public Response<AvailabilityDto> getMealPlanAvailability(@PathParam("restaurant") String restaurantString, @PathParam("dayOffset") int dayOffset) {
         Optional<SvRestaurant> restaurant = findRestaurant(restaurantString);
 
-        if (restaurant.isPresent())
-            return mealController.getAvailability(dayOffset, restaurant.get());
-        else
+        if (restaurant.isPresent()) {
+            return defaultMealService.getAvailability(dayOffset, restaurant.get());
+        } else {
             return new Response<>("Invalid restaurant");
+        }
     }
 
     private Optional<SvRestaurant> findRestaurant(String shortcut) {

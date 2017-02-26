@@ -1,20 +1,22 @@
 package nu.peg.svmeal.controller;
 
 import com.google.gson.Gson;
-
-import com.mashape.unirest.http.*;
+import com.mashape.unirest.http.HttpResponse;
+import com.mashape.unirest.http.JsonNode;
+import com.mashape.unirest.http.Unirest;
 import com.mashape.unirest.http.exceptions.UnirestException;
-
 import nu.peg.svmeal.AppInitializer;
 import nu.peg.svmeal.converter.Converter;
 import nu.peg.svmeal.converter.SvRestaurantToRestaurantDtoConverter;
 import nu.peg.svmeal.model.RestaurantDto;
 import nu.peg.svmeal.model.SvRestaurant;
-
 import org.json.JSONArray;
 import org.json.JSONObject;
 
-import java.util.*;
+import java.util.Arrays;
+import java.util.HashMap;
+import java.util.List;
+import java.util.Map;
 import java.util.stream.Collectors;
 
 public class RestaurantController {
@@ -35,7 +37,7 @@ public class RestaurantController {
         HttpResponse<JsonNode> jsonResponse;
         try {
             jsonResponse = Unirest.post("http://www.sv-restaurant.ch/de/personalrestaurants/restaurant-suche/?type=8700")
-                                  .fields(formData).asJson();
+                    .fields(formData).asJson();
         } catch (UnirestException e) {
             throw new RuntimeException(e);
         }
@@ -50,13 +52,14 @@ public class RestaurantController {
 
         SvRestaurant[] restaurants = gson.fromJson(restaurantList.toString(), SvRestaurant[].class);
         return Arrays.asList(restaurants).stream()
-                     .filter(rest -> !rest.getLink().contains("sv-group") && !rest.getLink().isEmpty())
-                     .collect(Collectors.toList());
+                .filter(rest -> !rest.getLink().contains("sv-group") && !rest.getLink().isEmpty())
+                .collect(Collectors.toList());
     }
 
     public List<SvRestaurant> getRestaurantsCached() {
-        if (AppInitializer.restaurants == null)
+        if (AppInitializer.restaurants == null) {
             AppInitializer.restaurants = getRestaurants();
+        }
 
         return AppInitializer.restaurants;
     }
@@ -66,8 +69,9 @@ public class RestaurantController {
     }
 
     public List<RestaurantDto> getRestaurantDtosCached() {
-        if (AppInitializer.restaurantDtos == null)
+        if (AppInitializer.restaurantDtos == null) {
             AppInitializer.restaurantDtos = getRestaurantDtos();
+        }
 
         return AppInitializer.restaurantDtos;
     }

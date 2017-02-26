@@ -1,19 +1,19 @@
 package nu.peg.svmeal;
 
 import com.mashape.unirest.http.Unirest;
-
 import nu.peg.svmeal.model.RestaurantDto;
 import nu.peg.svmeal.model.SvRestaurant;
 
+import javax.servlet.ServletContextEvent;
+import javax.servlet.ServletContextListener;
 import java.io.IOException;
 import java.nio.file.Files;
 import java.nio.file.Path;
-import java.sql.*;
+import java.sql.Connection;
+import java.sql.DriverManager;
+import java.sql.SQLException;
 import java.util.List;
 import java.util.logging.Logger;
-
-import javax.servlet.ServletContextEvent;
-import javax.servlet.ServletContextListener;
 
 public class AppInitializer implements ServletContextListener {
 
@@ -31,7 +31,8 @@ public class AppInitializer implements ServletContextListener {
             logger.fine(String.format("SVMeal Cache File: %s%n", tempDb.toAbsolutePath().toString()));
 
             Class.forName("org.sqlite.JDBC");
-            dbConnection = DriverManager.getConnection(String.format("jdbc:sqlite:%s", tempDb.toAbsolutePath().toString()));
+            dbConnection = DriverManager.getConnection(String.format("jdbc:sqlite:%s", tempDb.toAbsolutePath()
+                    .toString()));
 
         } catch (Exception e) {
             logger.severe("Application initialization failed");

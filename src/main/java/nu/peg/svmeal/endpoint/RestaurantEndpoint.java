@@ -4,10 +4,11 @@ import nu.peg.svmeal.controller.RestaurantController;
 import nu.peg.svmeal.model.Response;
 import nu.peg.svmeal.model.RestaurantDto;
 
-import java.util.List;
-
-import javax.ws.rs.*;
+import javax.ws.rs.GET;
+import javax.ws.rs.Path;
+import javax.ws.rs.Produces;
 import javax.ws.rs.core.MediaType;
+import java.util.List;
 
 @Path("/api")
 @Produces(MediaType.APPLICATION_JSON)

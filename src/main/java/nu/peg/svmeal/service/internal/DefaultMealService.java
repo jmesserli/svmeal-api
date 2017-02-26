@@ -1,4 +1,4 @@
-package nu.peg.svmeal.controller;
+package nu.peg.svmeal.service.internal;
 
 import com.mashape.unirest.http.HttpResponse;
 import com.mashape.unirest.http.Unirest;
@@ -6,21 +6,23 @@ import com.mashape.unirest.http.exceptions.UnirestException;
 import nu.peg.svmeal.converter.Converter;
 import nu.peg.svmeal.converter.DocumentToMealPlanDtoConverter;
 import nu.peg.svmeal.model.*;
+import nu.peg.svmeal.service.MealService;
 import nu.peg.svmeal.util.HttpUtil;
 import org.jsoup.Jsoup;
 import org.jsoup.nodes.Document;
+import org.springframework.stereotype.Service;
 
 import java.util.logging.Level;
 
 import static nu.peg.svmeal.AppInitializer.logger;
 
-public class MealController {
-
+@Service
+public class DefaultMealService implements MealService {
     private final Converter<Document, MealPlanDto> docToPlan;
     private final MealPlanResponseCache cache;
     private final String NO_MEALPLAN_AVAILABLE_ERROR = "No meal plan available for this date";
 
-    public MealController() {
+    public DefaultMealService() {
         this.docToPlan = new DocumentToMealPlanDtoConverter();
 
         // values are cached for 5 minutes if not otherwise specified
@@ -43,10 +45,12 @@ public class MealController {
      *
      * @see #getMealPlan(int, SvRestaurant)
      */
+    @Override
     public Response<AvailabilityDto> getAvailability(int dayOffset, SvRestaurant restaurant) {
         MealPlanResponse response = getMealPlanCached(dayOffset, restaurant);
 
-        boolean available = response.getStatus() != Response.Status.Error || !response.getError().equals(NO_MEALPLAN_AVAILABLE_ERROR);
+        boolean available = response.getStatus() != Response.Status.Error || !response.getError()
+                .equals(NO_MEALPLAN_AVAILABLE_ERROR);
         return new Response<>(new AvailabilityDto(available));
     }
 
@@ -59,6 +63,7 @@ public class MealController {
      * @param restaurant Which restaurant website to scrape the meal plan from
      * @return The scraped {@link MealPlanDto}
      */
+    @Override
     @SuppressWarnings("WeakerAccess")
     public MealPlanResponse getMealPlan(int dayOffset, SvRestaurant restaurant) {
         logger.fine(String.format("Scraping meal plan for %d@%s", dayOffset, restaurant));

@@ -1,7 +1,8 @@
 package nu.peg.svmeal.converter;
 
-import nu.peg.svmeal.model.*;
-
+import nu.peg.svmeal.model.MealPlanDto;
+import nu.peg.svmeal.model.MenuOfferDto;
+import nu.peg.svmeal.model.PriceDto;
 import org.jsoup.nodes.Document;
 import org.jsoup.select.Elements;
 
@@ -10,7 +11,6 @@ import java.time.format.DateTimeFormatter;
 import java.util.Arrays;
 import java.util.List;
 import java.util.stream.Collectors;
-
 
 public class DocumentToMealPlanDtoConverter implements Converter<Document, MealPlanDto> {
 
@@ -30,15 +30,17 @@ public class DocumentToMealPlanDtoConverter implements Converter<Document, MealP
             LocalDate localDate = LocalDate.parse(date, DateTimeFormatter.ofPattern("dd.MM.yyyy"));
 
             Elements offers = document.select(".offer");
-            List<MenuOfferDto> offerDtos = offers.stream().map(offer -> new MenuOfferDto(
-                    offer.select(".offer-description").text(),
-                    offer.select(".title").text(),
-                    Arrays.stream(offer.select(".trimmings").html().split("<br>"))
-                          .map(String::trim).collect(Collectors.toList()),
-                    offer.select(".sidedish").text(),
-                    PriceDto.fromElements(offer.select(".price-item")),
-                    offer.select(".provenance").text()
-            )).collect(Collectors.toList());
+            List<MenuOfferDto> offerDtos = offers.stream()
+                    .map(offer -> new MenuOfferDto(
+                            offer.select(".offer-description").text(),
+                            offer.select(".title").text(),
+                            Arrays.stream(offer.select(".trimmings").html().split("<br>"))
+                                    .map(String::trim)
+                                    .collect(Collectors.toList()),
+                            offer.select(".sidedish").text(),
+                            PriceDto.fromElements(offer.select(".price-item")),
+                            offer.select(".provenance").text()
+                    )).collect(Collectors.toList());
 
             return new MealPlanDto(localDate, offerDtos);
         } else {

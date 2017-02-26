@@ -1,7 +1,8 @@
 package nu.peg.svmeal.persistence;
 
 import nu.peg.svmeal.AppInitializer;
-import nu.peg.svmeal.model.*;
+import nu.peg.svmeal.model.MealPlanResponse;
+import nu.peg.svmeal.model.SvRestaurant;
 
 import java.io.*;
 import java.sql.*;
@@ -71,7 +72,9 @@ public class CacheDatabaseHandler {
             stmt.setString(2, restaurant.getId());
 
             ResultSet results = stmt.executeQuery();
-            if (!results.next()) return null;
+            if (!results.next()) {
+                return null;
+            }
 
             byte[] bytes = results.getBytes(1);
             ObjectInputStream ois = new ObjectInputStream(new ByteArrayInputStream(bytes));

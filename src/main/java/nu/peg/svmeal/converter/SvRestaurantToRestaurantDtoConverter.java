@@ -10,7 +10,7 @@ public class SvRestaurantToRestaurantDtoConverter implements Converter<SvRestaur
     private Pattern linkShortcutPattern;
 
     public SvRestaurantToRestaurantDtoConverter() {
-        linkShortcutPattern = Pattern.compile("^https?:\\/\\/(.*)\\.sv-restaurant\\.ch.*$");
+        linkShortcutPattern = Pattern.compile("^https?://(.*)\\.sv-restaurant\\.ch.*$");
     }
 
     @Override
@@ -26,6 +26,7 @@ public class SvRestaurantToRestaurantDtoConverter implements Converter<SvRestaur
         } catch (Exception e) {
             throw new RuntimeException(link, e);
         }
+        //noinspection SpellCheckingInspection
         boolean _public = from.getType().equals("\u00f6ffentlich");
 
         return new RestaurantDto(from.getName(), link, shortcut, _public);
