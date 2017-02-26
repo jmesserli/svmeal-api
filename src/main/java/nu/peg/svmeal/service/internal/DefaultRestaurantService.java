@@ -1,34 +1,40 @@
-package nu.peg.svmeal.controller;
+package nu.peg.svmeal.service.internal;
 
 import com.google.gson.Gson;
 import com.mashape.unirest.http.HttpResponse;
 import com.mashape.unirest.http.JsonNode;
 import com.mashape.unirest.http.Unirest;
 import com.mashape.unirest.http.exceptions.UnirestException;
-import nu.peg.svmeal.AppInitializer;
 import nu.peg.svmeal.converter.Converter;
-import nu.peg.svmeal.converter.SvRestaurantToRestaurantDtoConverter;
 import nu.peg.svmeal.model.RestaurantDto;
 import nu.peg.svmeal.model.SvRestaurant;
+import nu.peg.svmeal.service.RestaurantService;
 import org.json.JSONArray;
 import org.json.JSONObject;
+import org.springframework.cache.annotation.Cacheable;
+import org.springframework.stereotype.Service;
 
+import javax.inject.Inject;
 import java.util.Arrays;
 import java.util.HashMap;
 import java.util.List;
 import java.util.Map;
 import java.util.stream.Collectors;
 
-public class RestaurantController {
-    private Gson gson;
-    private Converter<SvRestaurant, RestaurantDto> restaurantConverter;
+@Service
+public class DefaultRestaurantService implements RestaurantService {
+    private final Gson gson;
+    private final Converter<SvRestaurant, RestaurantDto> restaurantConverter;
 
-    public RestaurantController() {
-        this.gson = new Gson();
-        this.restaurantConverter = new SvRestaurantToRestaurantDtoConverter();
+    @Inject
+    public DefaultRestaurantService(Gson gson, Converter<SvRestaurant, RestaurantDto> restaurantConverter) {
+        this.gson = gson;
+        this.restaurantConverter = restaurantConverter;
     }
 
-    private List<SvRestaurant> getRestaurants() {
+    @Override
+    @Cacheable("restaurants")
+    public List<SvRestaurant> getRestaurants() {
         Map<String, Object> formData = new HashMap<>();
         formData.put("searchfield", "");
         formData.put("typeofrestaurant", 1);
@@ -56,23 +62,9 @@ public class RestaurantController {
                 .collect(Collectors.toList());
     }
 
-    public List<SvRestaurant> getRestaurantsCached() {
-        if (AppInitializer.restaurants == null) {
-            AppInitializer.restaurants = getRestaurants();
-        }
-
-        return AppInitializer.restaurants;
-    }
-
-    private List<RestaurantDto> getRestaurantDtos() {
-        return getRestaurantsCached().stream().map(restaurantConverter::convert).collect(Collectors.toList());
-    }
-
-    public List<RestaurantDto> getRestaurantDtosCached() {
-        if (AppInitializer.restaurantDtos == null) {
-            AppInitializer.restaurantDtos = getRestaurantDtos();
-        }
-
-        return AppInitializer.restaurantDtos;
+    @Override
+    @Cacheable("restaurantDtos")
+    public List<RestaurantDto> getRestaurantDtos() {
+        return this.getRestaurants().stream().map(restaurantConverter::convert).collect(Collectors.toList());
     }
 }

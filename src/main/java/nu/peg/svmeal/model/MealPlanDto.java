@@ -8,7 +8,6 @@ import java.time.LocalDate;
 import java.util.ArrayList;
 import java.util.List;
 
-@SuppressWarnings("Since15")
 public class MealPlanDto implements Serializable {
     @JsonSerialize(using = ToStringSerializer.class)
     public LocalDate date;

@@ -2,16 +2,14 @@ package nu.peg.svmeal.converter;
 
 import nu.peg.svmeal.model.RestaurantDto;
 import nu.peg.svmeal.model.SvRestaurant;
+import org.springframework.stereotype.Component;
 
 import java.util.regex.Matcher;
 import java.util.regex.Pattern;
 
+@Component
 public class SvRestaurantToRestaurantDtoConverter implements Converter<SvRestaurant, RestaurantDto> {
-    private Pattern linkShortcutPattern;
-
-    public SvRestaurantToRestaurantDtoConverter() {
-        linkShortcutPattern = Pattern.compile("^https?://(.*)\\.sv-restaurant\\.ch.*$");
-    }
+    private final Pattern linkShortcutPattern = Pattern.compile("^https?://(.*)\\.sv-restaurant\\.ch.*$");
 
     @Override
     public RestaurantDto convert(SvRestaurant from) {

@@ -4,40 +4,27 @@ import com.mashape.unirest.http.HttpResponse;
 import com.mashape.unirest.http.Unirest;
 import com.mashape.unirest.http.exceptions.UnirestException;
 import nu.peg.svmeal.converter.Converter;
-import nu.peg.svmeal.converter.DocumentToMealPlanDtoConverter;
 import nu.peg.svmeal.model.*;
 import nu.peg.svmeal.service.MealService;
 import nu.peg.svmeal.util.HttpUtil;
 import org.jsoup.Jsoup;
 import org.jsoup.nodes.Document;
+import org.slf4j.Logger;
+import org.slf4j.LoggerFactory;
 import org.springframework.stereotype.Service;
 
-import java.util.logging.Level;
-
-import static nu.peg.svmeal.AppInitializer.logger;
+import javax.inject.Inject;
 
 @Service
 public class DefaultMealService implements MealService {
+    private static final Logger LOGGER = LoggerFactory.getLogger(DefaultMealService.class);
+
     private final Converter<Document, MealPlanDto> docToPlan;
-    private final MealPlanResponseCache cache;
     private final String NO_MEALPLAN_AVAILABLE_ERROR = "No meal plan available for this date";
 
-    public DefaultMealService() {
-        this.docToPlan = new DocumentToMealPlanDtoConverter();
-
-        // values are cached for 5 minutes if not otherwise specified
-        int cacheSeconds = 5 * 60;
-
-        try {
-            String timeoutString = System.getProperty("cacheTimeout");
-            if (timeoutString != null && !timeoutString.isEmpty()) {
-                cacheSeconds = Integer.parseInt(timeoutString);
-            }
-        } catch (NumberFormatException nfe) {
-            logger.log(Level.WARNING, "Illegal cache timeout in seconds passed", nfe);
-        }
-
-        this.cache = new MealPlanResponseCache(cacheSeconds);
+    @Inject
+    public DefaultMealService(Converter<Document, MealPlanDto> docToPlan) {
+        this.docToPlan = docToPlan;
     }
 
     /**
@@ -47,7 +34,7 @@ public class DefaultMealService implements MealService {
      */
     @Override
     public Response<AvailabilityDto> getAvailability(int dayOffset, SvRestaurant restaurant) {
-        MealPlanResponse response = getMealPlanCached(dayOffset, restaurant);
+        MealPlanResponse response = getMealPlan(dayOffset, restaurant);
 
         boolean available = response.getStatus() != Response.Status.Error || !response.getError()
                 .equals(NO_MEALPLAN_AVAILABLE_ERROR);
@@ -64,9 +51,8 @@ public class DefaultMealService implements MealService {
      * @return The scraped {@link MealPlanDto}
      */
     @Override
-    @SuppressWarnings("WeakerAccess")
     public MealPlanResponse getMealPlan(int dayOffset, SvRestaurant restaurant) {
-        logger.fine(String.format("Scraping meal plan for %d@%s", dayOffset, restaurant));
+        LOGGER.debug("Scraping meal plan for {}@{}", dayOffset, restaurant);
 
         HttpResponse<String> response;
         try {
@@ -76,7 +62,7 @@ public class DefaultMealService implements MealService {
                     .queryString("addGP[shift]", dayOffset)
                     .asString();
         } catch (UnirestException e) {
-            logger.warning("Exception while requesting meal plan");
+            LOGGER.warn("Exception while requesting meal plan", e);
             return new MealPlanResponse("Internal Server Error: UnirestException");
         }
 
@@ -91,26 +77,6 @@ public class DefaultMealService implements MealService {
             }
         } else {
             return new MealPlanResponse("Internal Server Error: Request failed");
-        }
-    }
-
-    /**
-     * The same as {@link #getMealPlan(int, SvRestaurant)}, but with a cache
-     *
-     * @see #getMealPlan(int, SvRestaurant)
-     */
-    public MealPlanResponse getMealPlanCached(int dayOffset, SvRestaurant restaurant) {
-        MealPlanResponse response = cache.get(dayOffset, restaurant);
-
-        if (response == null) {
-            logger.fine(String.format("Value not cached: %d@%s, scraping", dayOffset, restaurant));
-            MealPlanResponse newResponse = getMealPlan(dayOffset, restaurant);
-            cache.add(dayOffset, restaurant, newResponse);
-
-            return newResponse;
-        } else {
-            logger.finer(String.format("Returning cached response for %d@%s: %s", dayOffset, restaurant, response));
-            return response;
         }
     }
 }

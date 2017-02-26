@@ -1,5 +1,7 @@
 package nu.peg.svmeal.filter;
 
+import org.springframework.stereotype.Component;
+
 import javax.ws.rs.container.ContainerRequestContext;
 import javax.ws.rs.container.ContainerResponseContext;
 import javax.ws.rs.container.ContainerResponseFilter;
@@ -11,6 +13,7 @@ import java.io.IOException;
  * Adds "Access-Control-Allow-Origin: *" to the response headers
  */
 @Provider
+@Component
 public class CORSResponseFilter implements ContainerResponseFilter {
     @Override
     public void filter(ContainerRequestContext containerRequestContext, ContainerResponseContext containerResponseContext) throws IOException {

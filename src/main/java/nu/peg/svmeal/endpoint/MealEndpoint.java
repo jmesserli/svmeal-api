@@ -1,12 +1,14 @@
 package nu.peg.svmeal.endpoint;
 
-import nu.peg.svmeal.controller.RestaurantController;
 import nu.peg.svmeal.model.AvailabilityDto;
 import nu.peg.svmeal.model.MealPlanDto;
 import nu.peg.svmeal.model.Response;
 import nu.peg.svmeal.model.SvRestaurant;
-import nu.peg.svmeal.service.internal.DefaultMealService;
+import nu.peg.svmeal.service.MealService;
+import nu.peg.svmeal.service.RestaurantService;
+import org.springframework.stereotype.Component;
 
+import javax.inject.Inject;
 import javax.ws.rs.GET;
 import javax.ws.rs.Path;
 import javax.ws.rs.PathParam;
@@ -15,16 +17,17 @@ import javax.ws.rs.core.MediaType;
 import java.util.List;
 import java.util.Optional;
 
+@Component
 @Path("/api")
 @Produces(MediaType.APPLICATION_JSON)
 public class MealEndpoint {
+    private final MealService mealService;
+    private final RestaurantService restaurantService;
 
-    private DefaultMealService defaultMealService;
-    private RestaurantController restaurantController;
-
-    public MealEndpoint() {
-        defaultMealService = new DefaultMealService();
-        restaurantController = new RestaurantController();
+    @Inject
+    public MealEndpoint(MealService mealService, RestaurantService restaurantService) {
+        this.mealService = mealService;
+        this.restaurantService = restaurantService;
     }
 
     @GET
@@ -39,7 +42,7 @@ public class MealEndpoint {
         Optional<SvRestaurant> restaurant = findRestaurant(restaurantString);
 
         if (restaurant.isPresent()) {
-            return defaultMealService.getMealPlanCached(dayOffset, restaurant.get());
+            return mealService.getMealPlan(dayOffset, restaurant.get());
         } else {
             return new Response<>("Invalid restaurant");
         }
@@ -51,14 +54,14 @@ public class MealEndpoint {
         Optional<SvRestaurant> restaurant = findRestaurant(restaurantString);
 
         if (restaurant.isPresent()) {
-            return defaultMealService.getAvailability(dayOffset, restaurant.get());
+            return mealService.getAvailability(dayOffset, restaurant.get());
         } else {
             return new Response<>("Invalid restaurant");
         }
     }
 
     private Optional<SvRestaurant> findRestaurant(String shortcut) {
-        List<SvRestaurant> restaurants = restaurantController.getRestaurantsCached();
+        List<SvRestaurant> restaurants = restaurantService.getRestaurants();
         return restaurants.stream().filter(rest -> rest.getLink().contains(shortcut)).findFirst();
     }
 }
