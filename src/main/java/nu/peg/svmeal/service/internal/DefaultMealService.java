@@ -11,9 +11,8 @@ import org.jsoup.Jsoup;
 import org.jsoup.nodes.Document;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
+import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Service;
-
-import javax.inject.Inject;
 
 @Service
 public class DefaultMealService implements MealService {
@@ -22,7 +21,7 @@ public class DefaultMealService implements MealService {
     private final Converter<Document, MealPlanDto> docToPlan;
     private final String NO_MEALPLAN_AVAILABLE_ERROR = "No meal plan available for this date";
 
-    @Inject
+    @Autowired
     public DefaultMealService(Converter<Document, MealPlanDto> docToPlan) {
         this.docToPlan = docToPlan;
     }

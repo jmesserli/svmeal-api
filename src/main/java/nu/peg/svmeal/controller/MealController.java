@@ -1,4 +1,4 @@
-package nu.peg.svmeal.endpoint;
+package nu.peg.svmeal.controller;
 
 import nu.peg.svmeal.model.AvailabilityDto;
 import nu.peg.svmeal.model.MealPlanDto;
@@ -6,39 +6,34 @@ import nu.peg.svmeal.model.Response;
 import nu.peg.svmeal.model.SvRestaurant;
 import nu.peg.svmeal.service.MealService;
 import nu.peg.svmeal.service.RestaurantService;
-import org.springframework.stereotype.Component;
+import org.springframework.beans.factory.annotation.Autowired;
+import org.springframework.web.bind.annotation.GetMapping;
+import org.springframework.web.bind.annotation.PathVariable;
+import org.springframework.web.bind.annotation.RequestMapping;
+import org.springframework.web.bind.annotation.RestController;
 
-import javax.inject.Inject;
-import javax.ws.rs.GET;
-import javax.ws.rs.Path;
-import javax.ws.rs.PathParam;
-import javax.ws.rs.Produces;
-import javax.ws.rs.core.MediaType;
 import java.util.List;
 import java.util.Optional;
 
-@Component
-@Path("/api")
-@Produces(MediaType.APPLICATION_JSON)
-public class MealEndpoint {
+@RestController
+@RequestMapping("/api/restaurant")
+public class MealController {
     private final MealService mealService;
     private final RestaurantService restaurantService;
 
-    @Inject
-    public MealEndpoint(MealService mealService, RestaurantService restaurantService) {
+    @Autowired
+    public MealController(MealService mealService, RestaurantService restaurantService) {
         this.mealService = mealService;
         this.restaurantService = restaurantService;
     }
 
-    @GET
-    @Path("/restaurant/{restaurant}/meal")
-    public Response<MealPlanDto> getRestaurantMeal(@PathParam("restaurant") String restaurantString) {
+    @GetMapping("/{restaurant}/meal")
+    public Response<MealPlanDto> getRestaurantMeal(@PathVariable("restaurant") String restaurantString) {
         return getRestaurantMealOffset(restaurantString, 0);
     }
 
-    @GET
-    @Path("/restaurant/{restaurant}/meal/{dayOffset}")
-    public Response<MealPlanDto> getRestaurantMealOffset(@PathParam("restaurant") String restaurantString, @PathParam("dayOffset") int dayOffset) {
+    @GetMapping("/{restaurant}/meal/{dayOffset}")
+    public Response<MealPlanDto> getRestaurantMealOffset(@PathVariable("restaurant") String restaurantString, @PathVariable("dayOffset") int dayOffset) {
         Optional<SvRestaurant> restaurant = findRestaurant(restaurantString);
 
         if (restaurant.isPresent()) {
@@ -48,9 +43,8 @@ public class MealEndpoint {
         }
     }
 
-    @GET
-    @Path("/restaurant/{restaurant}/meal/{dayOffset}/available")
-    public Response<AvailabilityDto> getMealPlanAvailability(@PathParam("restaurant") String restaurantString, @PathParam("dayOffset") int dayOffset) {
+    @GetMapping("/{restaurant}/meal/{dayOffset}/available")
+    public Response<AvailabilityDto> getMealPlanAvailability(@PathVariable("restaurant") String restaurantString, @PathVariable("dayOffset") int dayOffset) {
         Optional<SvRestaurant> restaurant = findRestaurant(restaurantString);
 
         if (restaurant.isPresent()) {

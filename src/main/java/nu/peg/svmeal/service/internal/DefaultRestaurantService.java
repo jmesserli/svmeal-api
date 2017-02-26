@@ -11,10 +11,10 @@ import nu.peg.svmeal.model.SvRestaurant;
 import nu.peg.svmeal.service.RestaurantService;
 import org.json.JSONArray;
 import org.json.JSONObject;
+import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.cache.annotation.Cacheable;
 import org.springframework.stereotype.Service;
 
-import javax.inject.Inject;
 import java.util.Arrays;
 import java.util.HashMap;
 import java.util.List;
@@ -26,7 +26,7 @@ public class DefaultRestaurantService implements RestaurantService {
     private final Gson gson;
     private final Converter<SvRestaurant, RestaurantDto> restaurantConverter;
 
-    @Inject
+    @Autowired
     public DefaultRestaurantService(Gson gson, Converter<SvRestaurant, RestaurantDto> restaurantConverter) {
         this.gson = gson;
         this.restaurantConverter = restaurantConverter;

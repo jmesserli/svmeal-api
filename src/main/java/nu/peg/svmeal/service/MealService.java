@@ -12,7 +12,5 @@ import nu.peg.svmeal.model.SvRestaurant;
  */
 public interface MealService {
     Response<AvailabilityDto> getAvailability(int dayOffset, SvRestaurant restaurant);
-
-    @SuppressWarnings("WeakerAccess")
     MealPlanResponse getMealPlan(int dayOffset, SvRestaurant restaurant);
 }

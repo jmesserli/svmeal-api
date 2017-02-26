@@ -5,9 +5,9 @@ import nu.peg.svmeal.model.MenuOfferDto;
 import nu.peg.svmeal.model.PriceDto;
 import org.jsoup.nodes.Document;
 import org.jsoup.select.Elements;
+import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Component;
 
-import javax.inject.Inject;
 import java.time.LocalDate;
 import java.time.format.DateTimeFormatter;
 import java.util.Arrays;
@@ -18,7 +18,7 @@ import java.util.stream.Collectors;
 public class DocumentToMealPlanDtoConverter implements Converter<Document, MealPlanDto> {
     private final Converter<Elements, PriceDto> priceDtoConverter;
 
-    @Inject
+    @Autowired
     public DocumentToMealPlanDtoConverter(Converter<Elements, PriceDto> priceDtoConverter) {
         this.priceDtoConverter = priceDtoConverter;
     }

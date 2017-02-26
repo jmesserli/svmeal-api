@@ -1,30 +1,26 @@
-package nu.peg.svmeal.endpoint;
+package nu.peg.svmeal.controller;
 
 import nu.peg.svmeal.model.Response;
 import nu.peg.svmeal.model.RestaurantDto;
 import nu.peg.svmeal.service.RestaurantService;
-import org.springframework.stereotype.Component;
+import org.springframework.beans.factory.annotation.Autowired;
+import org.springframework.web.bind.annotation.GetMapping;
+import org.springframework.web.bind.annotation.RequestMapping;
+import org.springframework.web.bind.annotation.RestController;
 
-import javax.inject.Inject;
-import javax.ws.rs.GET;
-import javax.ws.rs.Path;
-import javax.ws.rs.Produces;
-import javax.ws.rs.core.MediaType;
 import java.util.List;
 
-@Component
-@Path("/api")
-@Produces(MediaType.APPLICATION_JSON)
-public class RestaurantEndpoint {
+@RestController
+@RequestMapping("/api/restaurant")
+public class RestaurantController {
     private final RestaurantService restaurantService;
 
-    @Inject
-    public RestaurantEndpoint(RestaurantService restaurantService) {
+    @Autowired
+    public RestaurantController(RestaurantService restaurantService) {
         this.restaurantService = restaurantService;
     }
 
-    @GET
-    @Path("/restaurant")
+    @GetMapping("")
     public Response<List<RestaurantDto>> getRestaurants() {
         List<RestaurantDto> restaurantDtos;
         try {
