@@ -38,7 +38,7 @@ pipeline {
         }
 
         stage('Docker & Deploy') {
-//            when { branch 'master' }
+            when { branch 'master' }
             environment { DOCKER = credentials('docker-deploy') }
 
             steps {
