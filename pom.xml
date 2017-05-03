@@ -7,7 +7,7 @@
     <groupId>nu.peg</groupId>
     <artifactId>svmeal-api</artifactId>
     <version>1.1.0-SNAPSHOT</version>
-    <packaging>war</packaging>
+    <packaging>jar</packaging>
 
     <name>svmeal-api</name>
     <description>Api which scrapes menu plans from SV-Group websites</description>
@@ -49,7 +49,7 @@
         <dependency>
             <groupId>org.springframework.boot</groupId>
             <artifactId>spring-boot-starter-tomcat</artifactId>
-            <scope>provided</scope>
+            <!--<scope>provided</scope>-->
         </dependency>
         <dependency>
             <groupId>org.springframework.boot</groupId>
