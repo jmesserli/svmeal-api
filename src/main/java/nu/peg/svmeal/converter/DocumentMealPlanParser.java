@@ -3,21 +3,21 @@ package nu.peg.svmeal.converter;
 import nu.peg.svmeal.model.MealPlanDto;
 import nu.peg.svmeal.model.MenuOfferDto;
 import nu.peg.svmeal.model.PriceDto;
+import nu.peg.svmeal.util.DateUtil;
 import org.jsoup.nodes.Document;
+import org.jsoup.nodes.Element;
 import org.jsoup.select.Elements;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Component;
 
 import java.time.LocalDate;
-import java.time.format.DateTimeFormatter;
 import java.util.Arrays;
 import java.util.List;
 import java.util.stream.Collectors;
 
 @Component
 public class DocumentMealPlanParser {
-    public static final String MENU_PLAN_TABS_CLASS = ".menu-plan-tabs";
-    public static final String MENU_PLAN_TAB_FORMAT = ".menu-plan-tab%d";
+    public static final String MENU_PLAN_TAB_FORMAT = "#menu-plan-tab%d";
 
     private final Converter<Elements, PriceDto> priceDtoConverter;
 
@@ -34,31 +34,27 @@ public class DocumentMealPlanParser {
      * @return The {@link Document} converted to a {@link MealPlanDto}
      */
     public MealPlanDto convert(Document document, int dayOffset) {
-        Elements menuPlanTabs = document.select(MENU_PLAN_TABS_CLASS);
-        Elements menuPlanTab = menuPlanTabs.select(String.format(MENU_PLAN_TAB_FORMAT, dayOffset + 1));
+        Elements menuPlanTab = document.select(String.format(MENU_PLAN_TAB_FORMAT, dayOffset + 1));
         if (menuPlanTab.isEmpty()) {
             return null;
         }
 
-        String date = document.select(".date h2").text().split(",")[1].trim();
-        LocalDate localDate = LocalDate.parse(date, DateTimeFormatter.ofPattern("dd.MM.yyyy"));
+        List<String> dateStrings = document.select(".day-nav ul li label span.date").stream()
+                .map(Element::text)
+                .collect(Collectors.toList());
+        LocalDate localDate = DateUtil.tryParseDateFromRange(dateStrings, dayOffset);
 
-        Elements offers = document.select(".offer");
+        Elements offers = menuPlanTab.select(".menu-item .item-content");
         List<MenuOfferDto> offerDtos = offers.stream()
                 .map(offer -> new MenuOfferDto(
-                        offer.select(".offer-description").text(),
-                        offer.select(".title").text(),
-                        Arrays.stream(offer.select(".trimmings").html().split("<br>"))
+                        offer.select(".menu-title").text(),
+                        Arrays.stream(offer.select(".menu-description").html().split("<br>"))
                                 .map(String::trim)
                                 .collect(Collectors.toList()),
-                        offer.select(".sidedish").text(),
-                        priceDtoConverter.convert(offer.select(".price-item")),
-                        offer.select(".provenance").text()
+                        priceDtoConverter.convert(offer.select(".menu-prices")),
+                        offer.select(".menu-provenance").text()
                 )).collect(Collectors.toList());
 
         return new MealPlanDto(localDate, offerDtos);
     }
-
-
-
 }
