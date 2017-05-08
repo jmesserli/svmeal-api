@@ -3,7 +3,7 @@ package nu.peg.svmeal.service.internal;
 import com.mashape.unirest.http.HttpResponse;
 import com.mashape.unirest.http.Unirest;
 import com.mashape.unirest.http.exceptions.UnirestException;
-import nu.peg.svmeal.converter.Converter;
+import nu.peg.svmeal.converter.DocumentMealPlanParser;
 import nu.peg.svmeal.model.*;
 import nu.peg.svmeal.service.MealService;
 import nu.peg.svmeal.util.HttpUtil;
@@ -21,12 +21,12 @@ import static nu.peg.svmeal.util.CacheRegistry.MEAL_PLAN;
 public class DefaultMealService implements MealService {
     private static final Logger LOGGER = LoggerFactory.getLogger(DefaultMealService.class);
 
-    private final Converter<Document, MealPlanDto> docToPlan;
+    private final DocumentMealPlanParser docParser;
     private final String NO_MEALPLAN_AVAILABLE_ERROR = "No meal plan available for this date";
 
     @Autowired
-    public DefaultMealService(Converter<Document, MealPlanDto> docToPlan) {
-        this.docToPlan = docToPlan;
+    public DefaultMealService(DocumentMealPlanParser docParser) {
+        this.docParser = docParser;
     }
 
     /**
@@ -61,9 +61,7 @@ public class DefaultMealService implements MealService {
         try {
             String restaurantLink = HttpUtil.followRedirectsAndGetUrl(restaurant.getLink());
 
-            response = Unirest.get(restaurantLink)
-                    .queryString("addGP[shift]", dayOffset)
-                    .asString();
+            response = Unirest.get(restaurantLink).asString();
         } catch (UnirestException e) {
             LOGGER.warn("Exception while requesting meal plan", e);
             return new MealPlanResponse("Internal Server Error: UnirestException");
@@ -71,7 +69,7 @@ public class DefaultMealService implements MealService {
 
         if (response.getStatus() == 200) {
             Document document = Jsoup.parse(response.getBody());
-            MealPlanDto dto = docToPlan.convert(document);
+            MealPlanDto dto = docParser.convert(document, dayOffset);
 
             if (dto == null) {
                 return new MealPlanResponse(NO_MEALPLAN_AVAILABLE_ERROR);
