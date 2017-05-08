@@ -14,7 +14,7 @@ import java.net.URI;
 public final class HttpUtil {
 
     public static String followRedirectsAndGetUrl(String url) {
-        CloseableHttpClient httpClient = HttpClients.createDefault();
+        CloseableHttpClient httpClient = HttpClients.createSystem();
         HttpGet httpGet = new HttpGet(url);
         HttpContext context = new BasicHttpContext();
         try {

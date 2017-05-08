@@ -7,6 +7,9 @@ import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 import org.springframework.stereotype.Component;
 
+import java.util.Arrays;
+import java.util.List;
+
 /**
  * TODO Short summary
  *
@@ -15,26 +18,30 @@ import org.springframework.stereotype.Component;
 @Component
 public class ElementsToPriceDtoConverter implements Converter<Elements, PriceDto> {
     private static Logger LOGGER = LoggerFactory.getLogger(ElementsToPriceDtoConverter.class);
+    private static List<String> INTERNAL_PRICE_DESC_STRS = Arrays.asList("INT", "CHF");
 
     @Override
     public PriceDto convert(Elements from) {
-        final double[] intPrice = new double[1];
-        final double[] extPrice = new double[1];
+        double intPrice = 0, extPrice = 0;
 
-        from.stream().map(Element::text).forEach(elementString -> {
-            double price = Double.parseDouble(elementString.split(" ")[1]);
-
-            if (elementString.startsWith("INT")) {
-                intPrice[0] = price;
-            } else if (elementString.startsWith("EXT")) {
-                extPrice[0] = price;
-            } else if (elementString.startsWith("CHF")) { // For our derpy people in Zollikofen
-                intPrice[0] = price;
-            } else {
-                LOGGER.warn(String.format("Found non-matching price tag: `%s`", elementString));
+        Elements priceSpans = from.select(".price");
+        for (Element priceSpan : priceSpans) {
+            String desc = priceSpan.select(".desc").text();
+            double value;
+            try {
+                value = Double.parseDouble(priceSpan.select(".val").text());
+            } catch (NumberFormatException nfe) {
+                LOGGER.info("Error when parsing price value", nfe);
+                continue;
             }
-        });
 
-        return new PriceDto(intPrice[0], extPrice[0]);
+            if (INTERNAL_PRICE_DESC_STRS.contains(desc)) {
+                intPrice = value;
+            } else {
+                extPrice = value;
+            }
+        }
+
+        return new PriceDto(intPrice, extPrice);
     }
 }
