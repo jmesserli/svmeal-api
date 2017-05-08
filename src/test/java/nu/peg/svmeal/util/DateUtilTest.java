@@ -36,7 +36,7 @@ public class DateUtilTest {
 
     @Test
     public void parsesDatesInSequence() {
-        LocalDate firstDayOfMonth = LocalDate.now().withDayOfMonth(1);
+        LocalDate firstDayOfMonth = LocalDate.now().withDayOfMonth(1).plusMonths(1);
 
         List<LocalDate> dateSequence = Stream.generate(DateUtil.dateSequenceGenerator(firstDayOfMonth))
                 .limit(10)
@@ -46,30 +46,32 @@ public class DateUtilTest {
                 .map(dateFormat::format)
                 .collect(Collectors.toList());
 
-        assertThat(DateUtil.tryParseDateFromRange(formattedDates, FIFTH_DATE_IDX)).isEqualTo(dateSequence.get(FIFTH_DATE_IDX));
+        assertThat(DateUtil.tryParseDateFromRange(formattedDates, FIFTH_DATE_IDX))
+                .isEqualTo(dateSequence.get(FIFTH_DATE_IDX));
     }
 
     @Test
     public void parsesDatesSkippingYearInSameMonth() {
-        LocalDate secondDayOfCurrentMonth = LocalDate.now().withDayOfMonth(2);
-        LocalDate firstDayOfNextYearsCurrentMonth = LocalDate.of(
-                secondDayOfCurrentMonth.getYear() + 1,
-                secondDayOfCurrentMonth.getMonth(),
-                secondDayOfCurrentMonth.getDayOfMonth() - 1
+        LocalDate secondDayOfNextMonth = LocalDate.now().withDayOfMonth(2).plusMonths(1);
+        LocalDate firstDayOfNextYearsNextMonth = LocalDate.of(
+                secondDayOfNextMonth.getYear() + 1,
+                secondDayOfNextMonth.getMonth(),
+                secondDayOfNextMonth.getDayOfMonth() - 1
         );
 
-        List<String> formattedDates = Arrays.asList(secondDayOfCurrentMonth, firstDayOfNextYearsCurrentMonth).stream()
+        List<String> formattedDates = Arrays.asList(secondDayOfNextMonth, firstDayOfNextYearsNextMonth).stream()
                 .map(dateFormat::format)
                 .collect(Collectors.toList());
 
-        assertThat(DateUtil.tryParseDateFromRange(formattedDates, SECOND_DATE_IDX)).isEqualTo(firstDayOfNextYearsCurrentMonth);
+        assertThat(DateUtil.tryParseDateFromRange(formattedDates, SECOND_DATE_IDX))
+                .isEqualTo(firstDayOfNextYearsNextMonth);
     }
 
     @Test
     public void handlesYearChangesCorrectly() {
-        LocalDate december29 = LocalDate.now().withMonth(12).withDayOfMonth(29);
+        LocalDate december30 = LocalDate.now().withMonth(12).withDayOfMonth(30);
 
-        List<LocalDate> yearCrossingDateSequence = Stream.generate(DateUtil.dateSequenceGenerator(december29))
+        List<LocalDate> yearCrossingDateSequence = Stream.generate(DateUtil.dateSequenceGenerator(december30))
                 .limit(4)
                 .collect(Collectors.toList());
 
@@ -78,6 +80,7 @@ public class DateUtilTest {
                 .collect(Collectors.toList());
 
         int januaryFirstIdx = 2;
-        assertThat(DateUtil.tryParseDateFromRange(formattedDates, januaryFirstIdx)).isEqualTo(yearCrossingDateSequence.get(januaryFirstIdx));
+        assertThat(DateUtil.tryParseDateFromRange(formattedDates, januaryFirstIdx))
+                .isEqualTo(yearCrossingDateSequence.get(januaryFirstIdx));
     }
 }

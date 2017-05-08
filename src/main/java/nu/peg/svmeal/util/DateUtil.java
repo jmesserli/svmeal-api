@@ -35,9 +35,28 @@ public final class DateUtil {
             return null;
         }
 
-        int currentYear = LocalDate.now().getYear();
+        LocalDate today = LocalDate.now();
+        int currentYear = today.getYear();
         String firstDateString = datesWithoutYear.get(FIRST_IDX);
-        return null;
+        LocalDate lastDate = parseDayMonthStringWithYear(firstDateString, currentYear);
+        if (lastDate.isBefore(today)) {
+            lastDate = lastDate.plusYears(1);
+            currentYear++;
+        }
+
+        for (int idx = 1; idx <= dateIdx; idx++) {
+            String currDayMonth = datesWithoutYear.get(idx);
+            LocalDate tempDate = parseDayMonthStringWithYear(currDayMonth, currentYear);
+
+            if (tempDate.isBefore(lastDate) || tempDate.isEqual(lastDate)) {
+                tempDate = tempDate.plusYears(1);
+                currentYear++;
+            }
+
+            lastDate = tempDate;
+        }
+
+        return lastDate;
     }
 
     private static LocalDate parseDayMonthStringWithYear(String dayMonthDate, int year) {
