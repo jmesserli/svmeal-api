@@ -73,6 +73,8 @@ public class DefaultRestaurantService implements RestaurantService {
     @Override
     @Cacheable(RESTAURANT_DTOS)
     public List<RestaurantDto> getRestaurantDtos() {
-        return this.getRestaurants().stream().map(restaurantConverter::convert).collect(Collectors.toList());
+        return this.getRestaurants().stream()
+                .map(restaurantConverter::convert)
+                .collect(Collectors.toList());
     }
 }

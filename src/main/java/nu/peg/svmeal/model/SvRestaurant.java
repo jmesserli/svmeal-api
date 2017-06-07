@@ -1,8 +1,15 @@
 package nu.peg.svmeal.model;
 
+import java.util.regex.Matcher;
+import java.util.regex.Pattern;
+
 public class SvRestaurant {
+    private final static Pattern linkShortcutPattern = Pattern.compile("^https?://(.*)\\.sv-restaurant\\.ch.*$");
+
     private String id, name, address, type, distance, distanceRender, lat, lng, link, linkLabel;
     private boolean rendered;
+
+    private transient String shortcut;
 
     public SvRestaurant() {
     }
@@ -19,6 +26,19 @@ public class SvRestaurant {
         this.link = link;
         this.linkLabel = linkLabel;
         this.rendered = rendered;
+    }
+
+    public String getShortcut() {
+        if (shortcut != null) {
+            return shortcut;
+        }
+
+        Matcher matcher = linkShortcutPattern.matcher(link);
+        if (!matcher.matches()) {
+            return (shortcut = (id + "-" + name).replaceAll("[ ]*", ""));
+        }
+
+        return (shortcut = matcher.group(1));
     }
 
     //region Getters and setters
