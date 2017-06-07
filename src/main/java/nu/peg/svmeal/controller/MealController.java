@@ -54,6 +54,6 @@ public class MealController {
 
     private Optional<SvRestaurant> findRestaurant(String shortcut) {
         List<SvRestaurant> restaurants = restaurantService.getRestaurants();
-        return restaurants.stream().filter(rest -> rest.getLink().contains(shortcut)).findFirst();
+        return restaurants.stream().filter(rest -> rest.getShortcut().equalsIgnoreCase(shortcut)).findFirst();
     }
 }
