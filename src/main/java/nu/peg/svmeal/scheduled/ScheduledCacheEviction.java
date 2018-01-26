@@ -6,7 +6,7 @@ import org.springframework.cache.annotation.CacheEvict;
 import org.springframework.scheduling.annotation.Scheduled;
 import org.springframework.stereotype.Component;
 
-import static nu.peg.svmeal.util.CacheRegistry.*;
+import static nu.peg.svmeal.config.CacheRegistry.*;
 
 /**
  * TODO Short summary

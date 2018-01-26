@@ -1,21 +1,22 @@
 package nu.peg.svmeal.service.internal;
 
 import com.google.gson.Gson;
-import com.mashape.unirest.http.HttpResponse;
-import com.mashape.unirest.http.JsonNode;
-import com.mashape.unirest.http.Unirest;
-import com.mashape.unirest.http.exceptions.UnirestException;
 import nu.peg.svmeal.converter.Converter;
 import nu.peg.svmeal.model.RestaurantDto;
 import nu.peg.svmeal.model.SvRestaurant;
+import nu.peg.svmeal.model.svsearch.RestaurantSearchResponseCallbackDto;
+import nu.peg.svmeal.model.svsearch.RestaurantSearchResponseDto;
 import nu.peg.svmeal.service.RestaurantService;
-import org.json.JSONArray;
-import org.json.JSONObject;
+import nu.peg.svmeal.util.HttpUtil;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.cache.annotation.Cacheable;
+import org.springframework.http.HttpEntity;
+import org.springframework.http.ResponseEntity;
 import org.springframework.stereotype.Service;
+import org.springframework.util.MultiValueMap;
+import org.springframework.web.client.RestTemplate;
 
 import java.util.Arrays;
 import java.util.HashMap;
@@ -23,20 +24,23 @@ import java.util.List;
 import java.util.Map;
 import java.util.stream.Collectors;
 
-import static nu.peg.svmeal.util.CacheRegistry.RESTAURANTS;
-import static nu.peg.svmeal.util.CacheRegistry.RESTAURANT_DTOS;
+import static nu.peg.svmeal.config.CacheRegistry.RESTAURANTS;
+import static nu.peg.svmeal.config.CacheRegistry.RESTAURANT_DTOS;
 
 @Service
 public class DefaultRestaurantService implements RestaurantService {
     private static final Logger LOGGER = LoggerFactory.getLogger(DefaultRestaurantService.class);
+    private static final String RESTAURANT_SEARCH_URL = "http://www.sv-restaurant.ch/de/personalrestaurants/restaurant-suche/?type=8700";
 
     private final Gson gson;
     private final Converter<SvRestaurant, RestaurantDto> restaurantConverter;
+    private final RestTemplate restTemplate;
 
     @Autowired
-    public DefaultRestaurantService(Gson gson, Converter<SvRestaurant, RestaurantDto> restaurantConverter) {
+    public DefaultRestaurantService(Gson gson, Converter<SvRestaurant, RestaurantDto> restaurantConverter, RestTemplate restTemplate) {
         this.gson = gson;
         this.restaurantConverter = restaurantConverter;
+        this.restTemplate = restTemplate;
     }
 
     @Override
@@ -48,24 +52,19 @@ public class DefaultRestaurantService implements RestaurantService {
         formData.put("typeofrestaurant", 1);
         formData.put("entranceregulation", 0);
 
-        HttpResponse<JsonNode> jsonResponse;
-        try {
-            jsonResponse = Unirest.post("http://www.sv-restaurant.ch/de/personalrestaurants/restaurant-suche/?type=8700")
-                    .fields(formData).asJson();
-        } catch (UnirestException e) {
-            throw new RuntimeException(e);
-        }
+        HttpEntity<MultiValueMap<String, String>> formDataEntity = HttpUtil.getPostFormData(formData);
+        ResponseEntity<RestaurantSearchResponseDto> searchDtoResponse = restTemplate.postForEntity(
+                RESTAURANT_SEARCH_URL,
+                formDataEntity,
+                RestaurantSearchResponseDto.class
+        );
 
-        JSONObject rootObject = jsonResponse.getBody().getObject();
-        JSONObject empty = rootObject.getJSONObject("empty");
-        String callbackFunc = empty.getString("callbackfunc");
-
+        String callbackFunc = searchDtoResponse.getBody().empty.callbackfunc;
         String callbackData = callbackFunc.substring(36, callbackFunc.length() - 8);
-        JSONObject callbackDataObject = new JSONObject(callbackData);
-        JSONArray restaurantList = callbackDataObject.getJSONArray("list");
+        RestaurantSearchResponseCallbackDto searchResponseCallback =
+                gson.fromJson(callbackData, RestaurantSearchResponseCallbackDto.class);
 
-        SvRestaurant[] restaurants = gson.fromJson(restaurantList.toString(), SvRestaurant[].class);
-        return Arrays.asList(restaurants).stream()
+        return Arrays.stream(searchResponseCallback.list)
                 .filter(rest -> !rest.getLink().contains("sv-group") && !rest.getLink().isEmpty())
                 .collect(Collectors.toList());
     }
