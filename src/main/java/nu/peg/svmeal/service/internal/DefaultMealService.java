@@ -1,32 +1,33 @@
 package nu.peg.svmeal.service.internal;
 
-import com.mashape.unirest.http.HttpResponse;
-import com.mashape.unirest.http.Unirest;
-import com.mashape.unirest.http.exceptions.UnirestException;
 import nu.peg.svmeal.converter.DocumentMealPlanParser;
 import nu.peg.svmeal.model.*;
 import nu.peg.svmeal.service.MealService;
-import nu.peg.svmeal.util.HttpUtil;
 import org.jsoup.Jsoup;
 import org.jsoup.nodes.Document;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.cache.annotation.Cacheable;
+import org.springframework.http.HttpStatus;
+import org.springframework.http.ResponseEntity;
 import org.springframework.stereotype.Service;
+import org.springframework.web.client.RestTemplate;
 
-import static nu.peg.svmeal.util.CacheRegistry.MEAL_PLAN;
+import static nu.peg.svmeal.config.CacheRegistry.MEAL_PLAN;
 
 @Service
 public class DefaultMealService implements MealService {
+    private static final String NO_MEALPLAN_AVAILABLE_ERROR = "No meal plan available for this date";
     private static final Logger LOGGER = LoggerFactory.getLogger(DefaultMealService.class);
 
     private final DocumentMealPlanParser docParser;
-    private final String NO_MEALPLAN_AVAILABLE_ERROR = "No meal plan available for this date";
+    private final RestTemplate restTemplate;
 
     @Autowired
-    public DefaultMealService(DocumentMealPlanParser docParser) {
+    public DefaultMealService(DocumentMealPlanParser docParser, RestTemplate restTemplate) {
         this.docParser = docParser;
+        this.restTemplate = restTemplate;
     }
 
     /**
@@ -57,17 +58,9 @@ public class DefaultMealService implements MealService {
     public MealPlanResponse getMealPlan(int dayOffset, SvRestaurant restaurant) {
         LOGGER.debug("Scraping meal plan for {}@{}", dayOffset, restaurant);
 
-        HttpResponse<String> response;
-        try {
-            String restaurantLink = HttpUtil.followRedirectsAndGetUrl(restaurant.getLink());
+        ResponseEntity<String> response = restTemplate.getForEntity(restaurant.getLink(), String.class);
 
-            response = Unirest.get(restaurantLink).asString();
-        } catch (UnirestException e) {
-            LOGGER.warn("Exception while requesting meal plan", e);
-            return new MealPlanResponse("Internal Server Error: UnirestException");
-        }
-
-        if (response.getStatus() == 200) {
+        if (response.getStatusCode() == HttpStatus.OK) {
             Document document = Jsoup.parse(response.getBody());
             MealPlanDto dto = docParser.convert(document, dayOffset);
 

@@ -1,35 +1,22 @@
 package nu.peg.svmeal.util;
 
-import org.apache.http.client.methods.HttpGet;
-import org.apache.http.impl.client.CloseableHttpClient;
-import org.apache.http.impl.client.DefaultRedirectStrategy;
-import org.apache.http.impl.client.HttpClients;
-import org.apache.http.impl.client.RedirectLocations;
-import org.apache.http.protocol.BasicHttpContext;
-import org.apache.http.protocol.HttpContext;
+import org.springframework.http.HttpEntity;
+import org.springframework.http.HttpHeaders;
+import org.springframework.http.MediaType;
+import org.springframework.util.LinkedMultiValueMap;
+import org.springframework.util.MultiValueMap;
 
-import java.io.IOException;
-import java.net.URI;
+import java.util.Map;
 
 public final class HttpUtil {
 
-    public static String followRedirectsAndGetUrl(String url) {
-        CloseableHttpClient httpClient = HttpClients.createSystem();
-        HttpGet httpGet = new HttpGet(url);
-        HttpContext context = new BasicHttpContext();
-        try {
-            httpClient.execute(httpGet, context);
-        } catch (IOException e) {
-            e.printStackTrace();
-        }
+    public static HttpEntity<MultiValueMap<String, String>> getPostFormData(Map<String, Object> formData) {
+        HttpHeaders headers = new HttpHeaders();
+        headers.setContentType(MediaType.APPLICATION_FORM_URLENCODED);
 
-        URI finalUri = httpGet.getURI();
-        RedirectLocations locations = (RedirectLocations) context.getAttribute(DefaultRedirectStrategy.REDIRECT_LOCATIONS);
-        if (locations != null) {
-            finalUri = locations.get(locations.size() - 1);
-        }
+        MultiValueMap<String, String> map = new LinkedMultiValueMap<>();
+        formData.forEach((k, v) -> map.add(k, v.toString()));
 
-        return finalUri.toString();
+        return new HttpEntity<>(map, headers);
     }
-
 }
