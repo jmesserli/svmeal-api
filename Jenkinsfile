@@ -9,7 +9,7 @@ def fullVersion() {
 pipeline {
     agent {
         docker {
-            image 'jmesserli/openjdk-with-docker'
+            image 'jmesserli/oc-docker-build-container'
             args '-v /var/run/docker.sock:/var/run/docker.sock'
         }
     }
