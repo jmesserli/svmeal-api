@@ -3,8 +3,6 @@ package nu.peg.svmeal.config;
 import com.google.gson.Gson;
 import nu.peg.svmeal.http.SvmealInterceptor;
 import org.springframework.boot.web.client.RestTemplateBuilder;
-import org.springframework.cloud.sleuth.Sampler;
-import org.springframework.cloud.sleuth.sampler.AlwaysSampler;
 import org.springframework.context.annotation.Bean;
 import org.springframework.context.annotation.Configuration;
 import org.springframework.core.env.Environment;
@@ -26,7 +24,7 @@ public class AppConfig {
     @Bean
     public RestTemplate restTemplate(ClientHttpRequestFactory requestFactory, List<SvmealInterceptor> interceptors) {
         return new RestTemplateBuilder()
-                .requestFactory(requestFactory)
+                .requestFactory(() -> requestFactory)
                 .additionalInterceptors(interceptors)
                 .build();
     }
@@ -43,10 +41,5 @@ public class AppConfig {
         }
 
         return simpleFactory;
-    }
-
-    @Bean
-    public Sampler sampler() {
-        return new AlwaysSampler();
     }
 }
