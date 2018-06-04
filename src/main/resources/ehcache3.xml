@@ -4,19 +4,19 @@
         xsi:schemaLocation="http://www.ehcache.org/v3 http://www.ehcache.org/schema/ehcache-core-3.0.xsd">
     <eh:cache alias="restaurants">
         <eh:expiry>
-            <eh:class>nu.peg.svmeal.cache.MidnightExpiry</eh:class>
+            <eh:ttl unit="hours">2</eh:ttl>
         </eh:expiry>
         <eh:heap>1</eh:heap>
     </eh:cache>
     <eh:cache alias="restaurantDtos">
         <eh:expiry>
-            <eh:class>nu.peg.svmeal.cache.MidnightExpiry</eh:class>
+            <eh:ttl unit="minutes">15</eh:ttl>
         </eh:expiry>
         <eh:heap>1</eh:heap>
     </eh:cache>
     <eh:cache alias="mealPlan">
         <eh:expiry>
-            <eh:class>nu.peg.svmeal.cache.MidnightExpiry</eh:class>
+            <eh:ttl unit="minutes">15</eh:ttl>
         </eh:expiry>
         <eh:heap>50</eh:heap>
     </eh:cache>
