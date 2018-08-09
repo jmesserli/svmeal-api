@@ -30,7 +30,7 @@ import static nu.peg.svmeal.config.CacheRegistry.RESTAURANT_DTOS;
 @Service
 public class DefaultRestaurantService implements RestaurantService {
     private static final Logger LOGGER = LoggerFactory.getLogger(DefaultRestaurantService.class);
-    private static final String RESTAURANT_SEARCH_URL = "http://www.sv-restaurant.ch/de/personalrestaurants/restaurant-suche/?type=8700";
+    private static final String RESTAURANT_SEARCH_URL = "http://www.sv-restaurant.ch/de/mitarbeiterrestaurants/restaurant-suche/?type=8700";
 
     private final Gson gson;
     private final Converter<SvRestaurant, RestaurantDto> restaurantConverter;
