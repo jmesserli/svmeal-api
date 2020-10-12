@@ -6,7 +6,6 @@ import org.springframework.stereotype.Component;
 
 @Component
 public class SvRestaurantToRestaurantDtoConverter implements Converter<SvRestaurant, RestaurantDto> {
-    @SuppressWarnings("SpellCheckingInspection")
     public static final String PUBLIC_TYPE = "\u00f6ffentlich";
 
     @Override

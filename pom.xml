@@ -6,7 +6,7 @@
 
     <groupId>nu.peg</groupId>
     <artifactId>svmeal-api</artifactId>
-    <version>2.2-SNAPSHOT</version>
+    <version>2.3.0-SNAPSHOT</version>
     <packaging>jar</packaging>
 
     <name>svmeal-api</name>
@@ -15,7 +15,7 @@
     <parent>
         <groupId>org.springframework.boot</groupId>
         <artifactId>spring-boot-starter-parent</artifactId>
-        <version>2.0.0.RELEASE</version>
+        <version>2.3.4.RELEASE</version>
     </parent>
 
     <properties>
@@ -23,13 +23,6 @@
         <project.reporting.outputEncoding>UTF-8</project.reporting.outputEncoding>
         <java.version>1.8</java.version>
     </properties>
-
-    <repositories>
-        <repository>
-            <id>pegnu-pkg</id>
-            <url>https://pkg.pegnu.cloud/repository/m2/</url>
-        </repository>
-    </repositories>
 
     <dependencies>
         <dependency>
@@ -43,12 +36,28 @@
         <dependency>
             <groupId>org.springframework.boot</groupId>
             <artifactId>spring-boot-starter-web</artifactId>
+            <exclusions>
+                <exclusion>
+                    <groupId>org.springframework.boot</groupId>
+                    <artifactId>spring-boot-starter-tomcat</artifactId>
+                </exclusion>
+            </exclusions>
         </dependency>
 
         <dependency>
             <groupId>org.springframework.boot</groupId>
             <artifactId>spring-boot-starter-jetty</artifactId>
             <!--<scope>provided</scope>-->
+        </dependency>
+
+        <dependency>
+            <groupId>io.github.resilience4j</groupId>
+            <artifactId>resilience4j-spring-boot2</artifactId>
+            <version>1.6.1</version>
+        </dependency>
+        <dependency>
+            <groupId>org.springframework.boot</groupId>
+            <artifactId>spring-boot-starter-aop</artifactId>
         </dependency>
 
         <dependency>
@@ -61,7 +70,7 @@
         <dependency>
             <groupId>org.jsoup</groupId>
             <artifactId>jsoup</artifactId>
-            <version>1.9.2</version>
+            <version>1.10.2</version>
         </dependency>
         <dependency>
             <groupId>com.google.code.gson</groupId>
