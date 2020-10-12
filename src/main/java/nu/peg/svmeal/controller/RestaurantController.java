@@ -24,14 +24,6 @@ public class RestaurantController {
 
     @GetMapping("")
     public Response<List<RestaurantDto>> getRestaurants() {
-        List<RestaurantDto> restaurantDtos;
-        try {
-            restaurantDtos = restaurantService.getRestaurantDtos();
-        } catch (Exception e) {
-            e.printStackTrace();
-            return new Response<>("Unable to retrieve restaurants at this time.");
-        }
-
-        return new Response<>(restaurantDtos);
+        return new Response<>(restaurantService.getRestaurantDtos());
     }
 }

@@ -74,6 +74,7 @@ public class DefaultRestaurantService implements RestaurantService {
 
     @Override
     @Cacheable(RESTAURANT_DTOS)
+    @CircuitBreaker(name = SV_SEARCH)
     public List<RestaurantDto> getRestaurantDtos() {
         return this.getRestaurants().stream()
                 .map(restaurantConverter::convert)
