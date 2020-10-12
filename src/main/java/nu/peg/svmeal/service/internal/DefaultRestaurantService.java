@@ -32,7 +32,7 @@ import static nu.peg.svmeal.config.CircuitBreakers.SV_SEARCH;
 @Service
 public class DefaultRestaurantService implements RestaurantService {
     private static final Logger LOGGER = LoggerFactory.getLogger(DefaultRestaurantService.class);
-    private static final String RESTAURANT_SEARCH_URL = "http://www.sv-restaurant.ch/de/mitarbeiterrestaurants/restaurant-suche/?type=8700";
+    private static final String RESTAURANT_SEARCH_URL = "https://www.sv-restaurant.ch/de/mitarbeiterrestaurants/restaurantsuche-mitarbeiterrestaurants?type=8700";
 
     private final Gson gson;
     private final Converter<SvRestaurant, RestaurantDto> restaurantConverter;
