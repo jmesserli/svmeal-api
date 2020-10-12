@@ -1,6 +1,7 @@
 package nu.peg.svmeal.service.internal;
 
 import com.google.gson.Gson;
+import io.github.resilience4j.circuitbreaker.annotation.CircuitBreaker;
 import nu.peg.svmeal.converter.Converter;
 import nu.peg.svmeal.model.RestaurantDto;
 import nu.peg.svmeal.model.SvRestaurant;
@@ -24,13 +25,14 @@ import java.util.List;
 import java.util.Map;
 import java.util.stream.Collectors;
 
-import static nu.peg.svmeal.config.CacheRegistry.RESTAURANTS;
-import static nu.peg.svmeal.config.CacheRegistry.RESTAURANT_DTOS;
+import static nu.peg.svmeal.config.CacheNames.RESTAURANTS;
+import static nu.peg.svmeal.config.CacheNames.RESTAURANT_DTOS;
+import static nu.peg.svmeal.config.CircuitBreakers.SV_SEARCH;
 
 @Service
 public class DefaultRestaurantService implements RestaurantService {
     private static final Logger LOGGER = LoggerFactory.getLogger(DefaultRestaurantService.class);
-    private static final String RESTAURANT_SEARCH_URL = "http://www.sv-restaurant.ch/de/mitarbeiterrestaurants/restaurant-suche/?type=8700";
+    private static final String RESTAURANT_SEARCH_URL = "https://www.sv-restaurant.ch/de/mitarbeiterrestaurants/restaurantsuche-mitarbeiterrestaurants?type=8700";
 
     private final Gson gson;
     private final Converter<SvRestaurant, RestaurantDto> restaurantConverter;
@@ -45,6 +47,7 @@ public class DefaultRestaurantService implements RestaurantService {
 
     @Override
     @Cacheable(RESTAURANTS)
+    @CircuitBreaker(name = SV_SEARCH)
     public List<SvRestaurant> getRestaurants() {
         LOGGER.info("Fetching restaurant list");
         Map<String, Object> formData = new HashMap<>();

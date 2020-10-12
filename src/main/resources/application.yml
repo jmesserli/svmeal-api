@@ -1,0 +1,21 @@
+spring:
+  application:
+    name: svmeal-api
+  cache:
+    jcache:
+      config: classpath:ehcache3.xml
+
+resilience4j:
+  circuitbreaker:
+    instances:
+      svSearch:
+        registerHealthIndicator: true
+        slidingWindowSize: 10
+        waitDurationInOpenState: 5m
+      svMenu:
+        registerHealthIndicator: true
+        slidingWindowSize: 10
+        waitDurationInOpenState: 5m
+
+svmeal:
+  user-agent: sv-meal/2.3.0 github.com/jmesserli/svmeal-api
