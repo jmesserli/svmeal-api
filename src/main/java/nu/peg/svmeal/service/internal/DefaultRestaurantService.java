@@ -19,6 +19,8 @@ import org.springframework.stereotype.Service;
 import org.springframework.util.MultiValueMap;
 import org.springframework.web.client.RestTemplate;
 
+import java.net.MalformedURLException;
+import java.net.URL;
 import java.util.Arrays;
 import java.util.HashMap;
 import java.util.List;
@@ -56,11 +58,9 @@ public class DefaultRestaurantService implements RestaurantService {
         formData.put("entranceregulation", 0);
 
         HttpEntity<MultiValueMap<String, String>> formDataEntity = HttpUtil.getPostFormData(formData);
-        ResponseEntity<RestaurantSearchResponseDto> searchDtoResponse = restTemplate.postForEntity(
-                RESTAURANT_SEARCH_URL,
-                formDataEntity,
-                RestaurantSearchResponseDto.class
-        );
+        ResponseEntity<RestaurantSearchResponseDto> searchDtoResponse =
+                restTemplate.postForEntity(
+                        RESTAURANT_SEARCH_URL, formDataEntity, RestaurantSearchResponseDto.class);
 
         String callbackFunc = searchDtoResponse.getBody().empty.callbackfunc;
         String callbackData = callbackFunc.substring(36, callbackFunc.length() - 8);
@@ -69,6 +69,7 @@ public class DefaultRestaurantService implements RestaurantService {
 
         return Arrays.stream(searchResponseCallback.list)
                 .filter(rest -> !rest.getLink().contains("sv-group") && !rest.getLink().isEmpty())
+                .peek(DefaultRestaurantService::upgradeRestaurantLinkToHttps)
                 .collect(Collectors.toList());
     }
 
@@ -79,5 +80,16 @@ public class DefaultRestaurantService implements RestaurantService {
         return this.getRestaurants().stream()
                 .map(restaurantConverter::convert)
                 .collect(Collectors.toList());
+    }
+
+    private static void upgradeRestaurantLinkToHttps(SvRestaurant rest) {
+        try {
+            URL url = new URL(rest.getLink());
+
+            if (url.getProtocol().equals("http")) {
+                rest.setLink(String.format("https%s", rest.getLink().substring(4)));
+            }
+        } catch (MalformedURLException ignored) {
+        }
     }
 }
