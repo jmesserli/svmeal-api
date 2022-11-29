@@ -4,11 +4,12 @@ import static nu.peg.svmeal.config.CacheNames.MEAL_PLAN;
 import static nu.peg.svmeal.config.CircuitBreakers.SV_MENU;
 
 import io.github.resilience4j.circuitbreaker.annotation.CircuitBreaker;
+import lombok.extern.slf4j.Slf4j;
 import nu.peg.svmeal.converter.DocumentMealPlanParser;
+import nu.peg.svmeal.exceptions.ExternalException;
+import nu.peg.svmeal.exceptions.MealPlanParsingException;
 import nu.peg.svmeal.model.AvailabilityDto;
 import nu.peg.svmeal.model.MealPlanDto;
-import nu.peg.svmeal.model.MealPlanResponse;
-import nu.peg.svmeal.model.Response;
 import nu.peg.svmeal.model.SvRestaurant;
 import nu.peg.svmeal.service.MealService;
 import org.jsoup.Jsoup;
@@ -22,6 +23,7 @@ import org.springframework.http.ResponseEntity;
 import org.springframework.stereotype.Service;
 import org.springframework.web.client.RestTemplate;
 
+@Slf4j
 @Service
 public class DefaultMealService implements MealService {
   private static final String NO_MEALPLAN_AVAILABLE_ERROR = "No meal plan available for this date";
@@ -42,13 +44,20 @@ public class DefaultMealService implements MealService {
    * @see #getMealPlan(int, SvRestaurant)
    */
   @Override
-  public Response<AvailabilityDto> getAvailability(int dayOffset, SvRestaurant restaurant) {
-    MealPlanResponse response = getMealPlan(dayOffset, restaurant);
+  public AvailabilityDto getAvailability(int dayOffset, SvRestaurant restaurant) {
+    try {
+      getMealPlan(dayOffset, restaurant);
 
-    boolean available =
-        response.getStatus() != Response.Status.Error
-            || !response.getError().equals(NO_MEALPLAN_AVAILABLE_ERROR);
-    return new Response<>(new AvailabilityDto(available));
+      return new AvailabilityDto(true);
+    } catch (ExternalException | MealPlanParsingException e) {
+      log.warn(
+          "Meal plan unavailable for restaurant {} with dayOffset {}",
+          restaurant.getId(),
+          dayOffset);
+      log.warn("Exception: ", e);
+    }
+
+    return new AvailabilityDto(false);
   }
 
   /**
@@ -62,22 +71,22 @@ public class DefaultMealService implements MealService {
   @Override
   @Cacheable(MEAL_PLAN)
   @CircuitBreaker(name = SV_MENU)
-  public MealPlanResponse getMealPlan(int dayOffset, SvRestaurant restaurant) {
+  public MealPlanDto getMealPlan(int dayOffset, SvRestaurant restaurant) {
     LOGGER.debug("Scraping meal plan for {}@{}", dayOffset, restaurant);
 
     ResponseEntity<String> response = restTemplate.getForEntity(restaurant.getLink(), String.class);
 
     if (response.getStatusCode() != HttpStatus.OK) {
-      return new MealPlanResponse("Internal Server Error: Request failed");
+      throw new ExternalException("Error while fetching meal plan");
     }
 
     Document document = Jsoup.parse(response.getBody());
     MealPlanDto dto = docParser.convert(document, dayOffset);
 
     if (dto == null) {
-      return new MealPlanResponse(NO_MEALPLAN_AVAILABLE_ERROR);
-    } else {
-      return new MealPlanResponse(dto);
+      throw new MealPlanParsingException(NO_MEALPLAN_AVAILABLE_ERROR);
     }
+
+    return dto;
   }
 }
