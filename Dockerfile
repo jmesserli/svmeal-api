@@ -1,9 +1,9 @@
-FROM maven:openjdk as builder
+FROM maven:3-eclipse-temurin-17 as builder
 
 COPY . /src
 RUN cd /src && mvn clean package
 
-FROM adoptopenjdk/openjdk14-openj9:alpine
+FROM eclipse-temurin:17-alpine
 
 VOLUME /tmp
 
