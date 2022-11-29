@@ -1,7 +1,10 @@
 package nu.peg.svmeal.model.svsearch;
 
+import java.util.List;
+import lombok.Data;
 import nu.peg.svmeal.model.SvRestaurant;
 
+@Data
 public class RestaurantSearchResponseCallbackDto {
-  public SvRestaurant[] list;
+  private List<SvRestaurant> list;
 }

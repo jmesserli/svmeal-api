@@ -2,53 +2,16 @@ package nu.peg.svmeal.model;
 
 import com.fasterxml.jackson.annotation.JsonProperty;
 import java.io.Serializable;
+import lombok.AllArgsConstructor;
+import lombok.Data;
 
+@Data
+@AllArgsConstructor
 public class RestaurantDto implements Serializable {
-  public String name, link, shortcut;
+  private String name;
+  private String link;
+  private String shortcut;
 
   @JsonProperty("public")
-  public boolean _public;
-
-  public RestaurantDto() {}
-
-  public RestaurantDto(String name, String link, String shortcut, boolean _public) {
-    this.name = name;
-    this.link = link;
-    this.shortcut = shortcut;
-    this._public = _public;
-  }
-
-  // region Getters and setters
-  public String getName() {
-    return name;
-  }
-
-  public void setName(String name) {
-    this.name = name;
-  }
-
-  public String getLink() {
-    return link;
-  }
-
-  public void setLink(String link) {
-    this.link = link;
-  }
-
-  public String getShortcut() {
-    return shortcut;
-  }
-
-  public void setShortcut(String shortcut) {
-    this.shortcut = shortcut;
-  }
-
-  public boolean isPublic() {
-    return _public;
-  }
-
-  public void setPublic(boolean _public) {
-    this._public = _public;
-  }
-  // endregion
+  private boolean isPublic;
 }

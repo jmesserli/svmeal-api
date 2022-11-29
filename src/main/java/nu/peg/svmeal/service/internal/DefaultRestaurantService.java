@@ -9,11 +9,11 @@ import com.fasterxml.jackson.databind.ObjectMapper;
 import io.github.resilience4j.circuitbreaker.annotation.CircuitBreaker;
 import java.net.MalformedURLException;
 import java.net.URL;
-import java.util.Arrays;
 import java.util.HashMap;
 import java.util.List;
 import java.util.Map;
 import java.util.stream.Collectors;
+import nu.peg.svmeal.exceptions.ExternalException;
 import nu.peg.svmeal.model.RestaurantDto;
 import nu.peg.svmeal.model.SvRestaurant;
 import nu.peg.svmeal.model.svsearch.RestaurantSearchResponseCallbackDto;
@@ -64,17 +64,17 @@ public class DefaultRestaurantService implements RestaurantService {
         restTemplate.postForEntity(
             RESTAURANT_SEARCH_URL, formDataEntity, RestaurantSearchResponseDto.class);
 
-    String callbackFunc = searchDtoResponse.getBody().empty.callbackfunc;
+    String callbackFunc = searchDtoResponse.getBody().getEmpty().getCallbackfunc();
     String callbackData = callbackFunc.substring(36, callbackFunc.length() - 8);
     RestaurantSearchResponseCallbackDto searchResponseCallback;
     try {
       searchResponseCallback =
           objectMapper.readValue(callbackData, RestaurantSearchResponseCallbackDto.class);
     } catch (JsonProcessingException e) {
-      throw new RuntimeException(e);
+      throw new ExternalException("Failed to parse restaurant search response", e);
     }
 
-    return Arrays.stream(searchResponseCallback.list)
+    return searchResponseCallback.getList().stream()
         .filter(rest -> !rest.getLink().contains("sv-group") && !rest.getLink().isEmpty())
         .peek(DefaultRestaurantService::upgradeRestaurantLinkToHttps)
         .collect(Collectors.toList());
@@ -97,6 +97,7 @@ public class DefaultRestaurantService implements RestaurantService {
         rest.setLink(String.format("https%s", rest.getLink().substring(4)));
       }
     } catch (MalformedURLException ignored) {
+      // ignored
     }
   }
 }
