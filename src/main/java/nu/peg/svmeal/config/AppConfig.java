@@ -1,6 +1,5 @@
 package nu.peg.svmeal.config;
 
-import com.google.gson.Gson;
 import java.net.InetSocketAddress;
 import java.net.Proxy;
 import java.util.List;
@@ -15,10 +14,6 @@ import org.springframework.web.client.RestTemplate;
 
 @Configuration
 public class AppConfig {
-  @Bean
-  public Gson gson() {
-    return new Gson();
-  }
 
   @Bean
   public RestTemplate restTemplate(
