@@ -1,12 +1,11 @@
 package nu.peg.svmeal.service;
 
+import java.util.List;
 import nu.peg.svmeal.model.RestaurantDto;
 import nu.peg.svmeal.model.SvRestaurant;
 
-import java.util.List;
-
 public interface RestaurantService {
-    List<SvRestaurant> getRestaurants();
+  List<SvRestaurant> getRestaurants();
 
-    List<RestaurantDto> getRestaurantDtos();
+  List<RestaurantDto> getRestaurantDtos();
 }
