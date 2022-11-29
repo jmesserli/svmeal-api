@@ -13,7 +13,6 @@ import java.util.HashMap;
 import java.util.List;
 import java.util.Map;
 import java.util.stream.Collectors;
-import nu.peg.svmeal.converter.Converter;
 import nu.peg.svmeal.model.RestaurantDto;
 import nu.peg.svmeal.model.SvRestaurant;
 import nu.peg.svmeal.model.svsearch.RestaurantSearchResponseCallbackDto;
@@ -24,6 +23,7 @@ import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.cache.annotation.Cacheable;
+import org.springframework.core.convert.ConversionService;
 import org.springframework.http.HttpEntity;
 import org.springframework.http.ResponseEntity;
 import org.springframework.stereotype.Service;
@@ -37,16 +37,14 @@ public class DefaultRestaurantService implements RestaurantService {
       "https://www.sv-restaurant.ch/de/mitarbeiterrestaurants/restaurantsuche-mitarbeiterrestaurants?type=8700";
 
   private final Gson gson;
-  private final Converter<SvRestaurant, RestaurantDto> restaurantConverter;
+  private final ConversionService conversionService;
   private final RestTemplate restTemplate;
 
   @Autowired
   public DefaultRestaurantService(
-      Gson gson,
-      Converter<SvRestaurant, RestaurantDto> restaurantConverter,
-      RestTemplate restTemplate) {
+      Gson gson, ConversionService conversionService, RestTemplate restTemplate) {
     this.gson = gson;
-    this.restaurantConverter = restaurantConverter;
+    this.conversionService = conversionService;
     this.restTemplate = restTemplate;
   }
 
@@ -81,7 +79,7 @@ public class DefaultRestaurantService implements RestaurantService {
   @CircuitBreaker(name = SV_SEARCH)
   public List<RestaurantDto> getRestaurantDtos() {
     return this.getRestaurants().stream()
-        .map(restaurantConverter::convert)
+        .map(restaurant -> conversionService.convert(restaurant, RestaurantDto.class))
         .collect(Collectors.toList());
   }
 
