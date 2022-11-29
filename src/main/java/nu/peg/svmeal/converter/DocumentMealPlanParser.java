@@ -50,13 +50,16 @@ public class DocumentMealPlanParser {
         offers.stream()
             .map(
                 offer ->
-                    new MenuOfferDto(
-                        offer.select(".menu-title").text(),
-                        Arrays.stream(offer.select(".menu-description").html().split("<br>"))
-                            .map(String::trim)
-                            .collect(Collectors.toList()),
-                        conversionService.convert(offer.select(".menu-prices"), PriceDto.class),
-                        offer.select(".menu-provenance").text()))
+                    MenuOfferDto.builder()
+                        .title(offer.select(".menu-title").text())
+                        .trimmings(
+                            Arrays.stream(offer.select(".menu-description").html().split("<br>"))
+                                .map(String::trim)
+                                .collect(Collectors.toList()))
+                        .price(
+                            conversionService.convert(offer.select(".menu-prices"), PriceDto.class))
+                        .provenance(offer.select(".menu-provenance").text())
+                        .build())
             .collect(Collectors.toList());
 
     return new MealPlanDto(localDate, offerDtos);

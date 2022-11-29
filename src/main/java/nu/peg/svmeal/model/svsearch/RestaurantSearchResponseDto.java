@@ -1,9 +1,13 @@
 package nu.peg.svmeal.model.svsearch;
 
-public class RestaurantSearchResponseDto {
-  public EmptyObject empty;
+import lombok.Data;
 
+@Data
+public class RestaurantSearchResponseDto {
+  private EmptyObject empty;
+
+  @Data
   public static class EmptyObject {
-    public String callbackfunc;
+    private String callbackfunc;
   }
 }

@@ -1,7 +1,6 @@
 package nu.peg.svmeal.controller;
 
 import java.util.List;
-import nu.peg.svmeal.model.Response;
 import nu.peg.svmeal.model.RestaurantDto;
 import nu.peg.svmeal.service.RestaurantService;
 import org.springframework.beans.factory.annotation.Autowired;
@@ -22,7 +21,7 @@ public class RestaurantController {
   }
 
   @GetMapping("")
-  public Response<List<RestaurantDto>> getRestaurants() {
-    return new Response<>(restaurantService.getRestaurantDtos());
+  public List<RestaurantDto> getRestaurants() {
+    return restaurantService.getRestaurantDtos();
   }
 }

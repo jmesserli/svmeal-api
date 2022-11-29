@@ -1,19 +1,10 @@
 package nu.peg.svmeal.model;
 
+import lombok.AllArgsConstructor;
+import lombok.Data;
+
+@Data
+@AllArgsConstructor
 public class AvailabilityDto {
   private boolean available;
-
-  public AvailabilityDto() {}
-
-  public AvailabilityDto(boolean available) {
-    this.available = available;
-  }
-
-  public boolean isAvailable() {
-    return available;
-  }
-
-  public void setAvailable(boolean available) {
-    this.available = available;
-  }
 }
