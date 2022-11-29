@@ -1,14 +1,12 @@
 package nu.peg.svmeal.model;
 
 import com.fasterxml.jackson.annotation.JsonProperty;
-import com.google.gson.annotations.SerializedName;
 import java.io.Serializable;
 
 public class RestaurantDto implements Serializable {
   public String name, link, shortcut;
 
   @JsonProperty("public")
-  @SerializedName("public")
   public boolean _public;
 
   public RestaurantDto() {}
