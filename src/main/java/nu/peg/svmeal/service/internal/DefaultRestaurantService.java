@@ -4,7 +4,8 @@ import static nu.peg.svmeal.config.CacheNames.RESTAURANTS;
 import static nu.peg.svmeal.config.CacheNames.RESTAURANT_DTOS;
 import static nu.peg.svmeal.config.CircuitBreakers.SV_SEARCH;
 
-import com.google.gson.Gson;
+import com.fasterxml.jackson.core.JsonProcessingException;
+import com.fasterxml.jackson.databind.ObjectMapper;
 import io.github.resilience4j.circuitbreaker.annotation.CircuitBreaker;
 import java.net.MalformedURLException;
 import java.net.URL;
@@ -36,14 +37,14 @@ public class DefaultRestaurantService implements RestaurantService {
   private static final String RESTAURANT_SEARCH_URL =
       "https://www.sv-restaurant.ch/de/mitarbeiterrestaurants/restaurantsuche-mitarbeiterrestaurants?type=8700";
 
-  private final Gson gson;
+  private final ObjectMapper objectMapper;
   private final ConversionService conversionService;
   private final RestTemplate restTemplate;
 
   @Autowired
   public DefaultRestaurantService(
-      Gson gson, ConversionService conversionService, RestTemplate restTemplate) {
-    this.gson = gson;
+      ObjectMapper objectMapper, ConversionService conversionService, RestTemplate restTemplate) {
+    this.objectMapper = objectMapper;
     this.conversionService = conversionService;
     this.restTemplate = restTemplate;
   }
@@ -65,8 +66,13 @@ public class DefaultRestaurantService implements RestaurantService {
 
     String callbackFunc = searchDtoResponse.getBody().empty.callbackfunc;
     String callbackData = callbackFunc.substring(36, callbackFunc.length() - 8);
-    RestaurantSearchResponseCallbackDto searchResponseCallback =
-        gson.fromJson(callbackData, RestaurantSearchResponseCallbackDto.class);
+    RestaurantSearchResponseCallbackDto searchResponseCallback;
+    try {
+      searchResponseCallback =
+          objectMapper.readValue(callbackData, RestaurantSearchResponseCallbackDto.class);
+    } catch (JsonProcessingException e) {
+      throw new RuntimeException(e);
+    }
 
     return Arrays.stream(searchResponseCallback.list)
         .filter(rest -> !rest.getLink().contains("sv-group") && !rest.getLink().isEmpty())
