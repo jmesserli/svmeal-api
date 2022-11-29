@@ -2,6 +2,7 @@ package nu.peg.svmeal.converter;
 
 import nu.peg.svmeal.model.RestaurantDto;
 import nu.peg.svmeal.model.SvRestaurant;
+import org.springframework.core.convert.converter.Converter;
 import org.springframework.stereotype.Component;
 
 @Component

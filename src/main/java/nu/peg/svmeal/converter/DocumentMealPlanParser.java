@@ -12,17 +12,18 @@ import org.jsoup.nodes.Document;
 import org.jsoup.nodes.Element;
 import org.jsoup.select.Elements;
 import org.springframework.beans.factory.annotation.Autowired;
+import org.springframework.core.convert.ConversionService;
 import org.springframework.stereotype.Component;
 
 @Component
 public class DocumentMealPlanParser {
   public static final String MENU_PLAN_TAB_FORMAT = "#menu-plan-tab%d";
 
-  private final Converter<Elements, PriceDto> priceDtoConverter;
+  private final ConversionService conversionService;
 
   @Autowired
-  public DocumentMealPlanParser(Converter<Elements, PriceDto> priceDtoConverter) {
-    this.priceDtoConverter = priceDtoConverter;
+  public DocumentMealPlanParser(ConversionService conversionService) {
+    this.conversionService = conversionService;
   }
 
   /**
@@ -54,7 +55,7 @@ public class DocumentMealPlanParser {
                         Arrays.stream(offer.select(".menu-description").html().split("<br>"))
                             .map(String::trim)
                             .collect(Collectors.toList()),
-                        priceDtoConverter.convert(offer.select(".menu-prices")),
+                        conversionService.convert(offer.select(".menu-prices"), PriceDto.class),
                         offer.select(".menu-provenance").text()))
             .collect(Collectors.toList());
 
