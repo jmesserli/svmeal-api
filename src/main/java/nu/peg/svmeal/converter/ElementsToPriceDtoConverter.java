@@ -17,7 +17,7 @@ import org.springframework.stereotype.Component;
 @Slf4j
 @Component
 public class ElementsToPriceDtoConverter implements Converter<Elements, PriceDto> {
-  private static final List<String> INTERNAL_PRICE_DESC_STRS = Arrays.asList("INT", "CHF");
+  private static final List<String> INTERNAL_PRICE_DESC_STRS = Arrays.asList("INT", "CHF", "M.FH");
 
   @Override
   public PriceDto convert(Elements from) {
