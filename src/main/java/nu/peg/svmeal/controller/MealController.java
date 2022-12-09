@@ -4,6 +4,7 @@ import java.util.List;
 import nu.peg.svmeal.exceptions.UnknownRestaurantException;
 import nu.peg.svmeal.model.AvailabilityDto;
 import nu.peg.svmeal.model.MealPlanDto;
+import nu.peg.svmeal.model.MealPlansDto;
 import nu.peg.svmeal.model.SvRestaurant;
 import nu.peg.svmeal.service.MealService;
 import nu.peg.svmeal.service.RestaurantService;
@@ -28,8 +29,8 @@ public class MealController {
   }
 
   @GetMapping("/{restaurant}/meal")
-  public MealPlanDto getRestaurantMeal(@PathVariable("restaurant") String restaurantString) {
-    return getRestaurantMealOffset(restaurantString, 0);
+  public MealPlansDto getRestaurantMeal(@PathVariable("restaurant") String restaurantString) {
+    return mealService.getMealPlans(findRestaurant(restaurantString));
   }
 
   @GetMapping("/{restaurant}/meal/{dayOffset}")
