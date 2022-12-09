@@ -18,4 +18,4 @@ resilience4j:
         waitDurationInOpenState: 5m
 
 svmeal:
-  user-agent: sv-meal/3.0.0 github.com/jmesserli/svmeal-api
+  user-agent: sv-meal/4.0.0 github.com/jmesserli/svmeal-api
