@@ -4,12 +4,14 @@ import static nu.peg.svmeal.config.CacheNames.MEAL_PLAN;
 import static nu.peg.svmeal.config.CircuitBreakers.SV_MENU;
 
 import io.github.resilience4j.circuitbreaker.annotation.CircuitBreaker;
+import java.time.LocalDate;
 import lombok.extern.slf4j.Slf4j;
 import nu.peg.svmeal.converter.DocumentMealPlanParser;
 import nu.peg.svmeal.exceptions.ExternalException;
 import nu.peg.svmeal.exceptions.MealPlanParsingException;
 import nu.peg.svmeal.model.AvailabilityDto;
 import nu.peg.svmeal.model.MealPlanDto;
+import nu.peg.svmeal.model.MealPlansDto;
 import nu.peg.svmeal.model.SvRestaurant;
 import nu.peg.svmeal.service.MealService;
 import org.jsoup.Jsoup;
@@ -52,7 +54,7 @@ public class DefaultMealService implements MealService {
     } catch (ExternalException | MealPlanParsingException e) {
       log.warn(
           "Meal plan unavailable for restaurant {} with dayOffset {}",
-          restaurant.getId(),
+          restaurant.getShortcut(),
           dayOffset);
       log.warn("Exception: ", e);
     }
@@ -69,10 +71,31 @@ public class DefaultMealService implements MealService {
    * @return The scraped {@link MealPlanDto}
    */
   @Override
+  public MealPlanDto getMealPlan(int dayOffset, SvRestaurant restaurant) {
+    final MealPlansDto mealPlans = getMealPlans(restaurant);
+
+    final LocalDate offsetDate =
+        mealPlans.getPlans().keySet().stream()
+            .sorted()
+            .skip(dayOffset)
+            .findFirst()
+            .orElseThrow(() -> new MealPlanParsingException(NO_MEALPLAN_AVAILABLE_ERROR));
+
+    return mealPlans.getPlans().get(offsetDate);
+  }
+
+  /**
+   * Scrapes all available meal plans from an SV-Group website and parses them into a {@link
+   * MealPlansDto}
+   *
+   * @param restaurant Which restaurant website to scrape the meal plan from
+   * @return The scraped {@link MealPlanDto}
+   */
+  @Override
   @Cacheable(MEAL_PLAN)
   @CircuitBreaker(name = SV_MENU)
-  public MealPlanDto getMealPlan(int dayOffset, SvRestaurant restaurant) {
-    LOGGER.debug("Scraping meal plan for {}@{}", dayOffset, restaurant);
+  public MealPlansDto getMealPlans(SvRestaurant restaurant) {
+    LOGGER.debug("Scraping meal plan for restaurant {}", restaurant);
 
     ResponseEntity<String> response = restTemplate.getForEntity(restaurant.getLink(), String.class);
 
@@ -81,7 +104,7 @@ public class DefaultMealService implements MealService {
     }
 
     Document document = Jsoup.parse(response.getBody());
-    MealPlanDto dto = docParser.convert(document, dayOffset);
+    MealPlansDto dto = docParser.convert(document);
 
     if (dto == null) {
       throw new MealPlanParsingException(NO_MEALPLAN_AVAILABLE_ERROR);
