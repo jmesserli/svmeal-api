@@ -6,7 +6,7 @@
 
   <groupId>nu.peg</groupId>
   <artifactId>svmeal-api</artifactId>
-  <version>4.0.0</version>
+  <version>4.0.1</version>
   <packaging>jar</packaging>
 
   <name>svmeal-api</name>
@@ -21,7 +21,7 @@
   <properties>
     <project.build.sourceEncoding>UTF-8</project.build.sourceEncoding>
     <project.reporting.outputEncoding>UTF-8</project.reporting.outputEncoding>
-    <java.version>1.8</java.version>
+    <java.version>17</java.version>
   </properties>
 
   <dependencies>
@@ -99,6 +99,14 @@
       <plugin>
         <groupId>org.springframework.boot</groupId>
         <artifactId>spring-boot-maven-plugin</artifactId>
+
+        <configuration>
+          <image>
+            <env>
+              <BP_JVM_VERSION>17</BP_JVM_VERSION>
+            </env>
+          </image>
+        </configuration>
       </plugin>
 
       <plugin>
