@@ -1,14 +1,12 @@
 package nu.peg.svmeal.util;
 
+import static org.assertj.core.api.Assertions.assertThat;
+
 import java.time.LocalDate;
 import java.time.format.DateTimeFormatter;
-import java.util.Arrays;
 import java.util.List;
-import java.util.stream.Collectors;
 import java.util.stream.Stream;
 import org.junit.jupiter.api.Test;
-
-import static org.assertj.core.api.Assertions.assertThat;
 
 /**
  * Tests for {@link DateUtil}
@@ -25,9 +23,7 @@ class DateUtilTest {
   void generatesDateSequence() {
     LocalDate today = LocalDate.now();
     List<LocalDate> actualList =
-        Stream.generate(DateUtil.dateSequenceGenerator(today))
-            .limit(3)
-            .collect(Collectors.toList());
+        Stream.generate(DateUtil.dateSequenceGenerator(today)).limit(3).toList();
 
     LocalDate[] expectedItems = {today, today.plusDays(1), today.plusDays(2)};
 
@@ -39,12 +35,9 @@ class DateUtilTest {
     LocalDate firstDayOfMonth = LocalDate.now().withDayOfMonth(1).plusMonths(1);
 
     List<LocalDate> dateSequence =
-        Stream.generate(DateUtil.dateSequenceGenerator(firstDayOfMonth))
-            .limit(10)
-            .collect(Collectors.toList());
+        Stream.generate(DateUtil.dateSequenceGenerator(firstDayOfMonth)).limit(10).toList();
 
-    List<String> formattedDates =
-        dateSequence.stream().map(dateFormat::format).collect(Collectors.toList());
+    List<String> formattedDates = dateSequence.stream().map(dateFormat::format).toList();
 
     assertThat(DateUtil.tryParseDateFromRange(formattedDates, FIFTH_DATE_IDX))
         .isEqualTo(dateSequence.get(FIFTH_DATE_IDX));
@@ -60,9 +53,9 @@ class DateUtilTest {
             secondDayOfNextMonth.getDayOfMonth() - 1);
 
     List<String> formattedDates =
-        Arrays.asList(secondDayOfNextMonth, firstDayOfNextYearsNextMonth).stream()
+        Stream.of(secondDayOfNextMonth, firstDayOfNextYearsNextMonth)
             .map(dateFormat::format)
-            .collect(Collectors.toList());
+            .toList();
 
     assertThat(DateUtil.tryParseDateFromRange(formattedDates, SECOND_DATE_IDX))
         .isEqualTo(firstDayOfNextYearsNextMonth);
@@ -73,15 +66,27 @@ class DateUtilTest {
     LocalDate december30 = LocalDate.now().withMonth(12).withDayOfMonth(30);
 
     List<LocalDate> yearCrossingDateSequence =
-        Stream.generate(DateUtil.dateSequenceGenerator(december30))
-            .limit(4)
-            .collect(Collectors.toList());
+        Stream.generate(DateUtil.dateSequenceGenerator(december30)).limit(4).toList();
 
     List<String> formattedDates =
-        yearCrossingDateSequence.stream().map(dateFormat::format).collect(Collectors.toList());
+        yearCrossingDateSequence.stream().map(dateFormat::format).toList();
 
     int januaryFirstIdx = 2;
     assertThat(DateUtil.tryParseDateFromRange(formattedDates, januaryFirstIdx))
         .isEqualTo(yearCrossingDateSequence.get(januaryFirstIdx));
+  }
+
+  @Test
+  void bugInvalidYearIfFirstDateIsBeforeToday() {
+    LocalDate bugDate = LocalDate.of(2022, 12, 16);
+
+    final var sequence =
+        Stream.generate(DateUtil.dateSequenceGenerator(bugDate.minusDays(1))).limit(5).toList();
+
+    List<String> formattedDates = sequence.stream().map(dateFormat::format).toList();
+
+    for (int i = 0; i < 5; i++) {
+      assertThat(DateUtil.tryParseDateFromRange(formattedDates, i)).isEqualTo(sequence.get(i));
+    }
   }
 }

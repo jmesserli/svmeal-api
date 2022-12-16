@@ -1,12 +1,11 @@
 package nu.peg.svmeal.util;
 
 import java.time.LocalDate;
+import java.time.Month;
 import java.util.List;
 import java.util.function.Supplier;
 import java.util.regex.Matcher;
 import java.util.regex.Pattern;
-import org.slf4j.Logger;
-import org.slf4j.LoggerFactory;
 
 /**
  * Utilities for working with dates
@@ -17,7 +16,6 @@ public final class DateUtil {
   public static final Pattern datePattern = Pattern.compile("^(\\d{2})\\.(\\d{2})\\.$");
 
   private static final int FIRST_IDX = 0;
-  private static final Logger LOGGER = LoggerFactory.getLogger(DateUtil.class);
 
   /**
    * Tries to parse dates that are missing a year, handling new years correctly (hopefully)
@@ -29,17 +27,17 @@ public final class DateUtil {
    * @return Parsed date or null if the parsing failed
    */
   public static LocalDate tryParseDateFromRange(List<String> datesWithoutYear, int dateIdx) {
-    if (dateIdx >= datesWithoutYear.size() || dateIdx < 0 || datesWithoutYear.size() == 0) {
-      LOGGER.debug("dateIdx is out of bounds or the list is empty");
-      return null;
+    if (dateIdx >= datesWithoutYear.size() || dateIdx < 0) {
+      throw new IllegalStateException("dateIdx is out of bounds or the list is empty");
     }
 
     LocalDate today = LocalDate.now();
     int currentYear = today.getYear();
+
     String firstDateString = datesWithoutYear.get(FIRST_IDX);
-    LocalDate lastDate = parseDayMonthStringWithYear(firstDateString, currentYear);
-    if (lastDate.isBefore(today)) {
-      lastDate = lastDate.plusYears(1);
+    LocalDate currentDate = parseDayMonthStringWithYear(firstDateString, currentYear);
+    if (currentDate.isBefore(today) && currentDate.getMonth() == Month.JANUARY) {
+      currentDate = currentDate.plusYears(1);
       currentYear++;
     }
 
@@ -47,30 +45,28 @@ public final class DateUtil {
       String currDayMonth = datesWithoutYear.get(idx);
       LocalDate tempDate = parseDayMonthStringWithYear(currDayMonth, currentYear);
 
-      if (tempDate.isBefore(lastDate) || tempDate.isEqual(lastDate)) {
+      if (tempDate.isBefore(currentDate) || tempDate.isEqual(currentDate)) {
         tempDate = tempDate.plusYears(1);
         currentYear++;
       }
 
-      lastDate = tempDate;
+      currentDate = tempDate;
     }
 
-    return lastDate;
+    return currentDate;
   }
 
   private static LocalDate parseDayMonthStringWithYear(String dayMonthDate, int year) {
     Matcher firstDateMatcher = datePattern.matcher(dayMonthDate);
     if (!firstDateMatcher.matches()) {
-      LOGGER.debug("The first date does not match the specified format");
-      return null;
+      throw new IllegalArgumentException("The first date does not match the specified format");
     }
     try {
       int firstDateDay = Integer.parseInt(firstDateMatcher.group(1));
       int firstDateMonth = Integer.parseInt(firstDateMatcher.group(2));
       return LocalDate.of(year, firstDateMonth, firstDateDay);
     } catch (NumberFormatException nfe) {
-      LOGGER.debug("NumberFormatException while parsing the first date");
-      return null;
+      throw new IllegalStateException("NumberFormatException while parsing the first date");
     }
   }
 
