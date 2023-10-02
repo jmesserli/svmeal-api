@@ -2,11 +2,11 @@ package nu.peg.svmeal.model;
 
 import java.util.Set;
 
-public enum DietaryRestrictionDto {
+public enum DietaryRestriction {
   VEGETARIAN,
   VEGAN;
 
-  public static DietaryRestrictionDto determineDietaryRestrictionByClassNames(
+  public static DietaryRestriction determineDietaryRestrictionByClassNames(
       Set<String> classNames) {
     if (classNames == null) {
       return null;

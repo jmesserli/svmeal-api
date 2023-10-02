@@ -13,4 +13,5 @@ public class MenuOfferDto implements Serializable {
 
   private PriceDto price;
   private String provenance;
+  private DietaryRestriction dietaryRestriction;
 }
