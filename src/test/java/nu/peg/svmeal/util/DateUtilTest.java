@@ -78,7 +78,8 @@ class DateUtilTest {
 
   @Test
   void bugInvalidYearIfFirstDateIsBeforeToday() {
-    LocalDate bugDate = LocalDate.of(2022, 12, 16);
+    final LocalDate now = LocalDate.now();
+    LocalDate bugDate = LocalDate.of(now.getYear(), 12, 16);
 
     final var sequence =
         Stream.generate(DateUtil.dateSequenceGenerator(bugDate.minusDays(1))).limit(5).toList();
