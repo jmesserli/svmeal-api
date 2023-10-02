@@ -6,10 +6,8 @@ import java.util.HashMap;
 import java.util.List;
 import java.util.Map;
 import java.util.stream.Collectors;
-import nu.peg.svmeal.model.MealPlanDto;
-import nu.peg.svmeal.model.MealPlansDto;
-import nu.peg.svmeal.model.MenuOfferDto;
-import nu.peg.svmeal.model.PriceDto;
+
+import nu.peg.svmeal.model.*;
 import nu.peg.svmeal.util.DateUtil;
 import org.jsoup.nodes.Document;
 import org.jsoup.nodes.Element;
@@ -67,6 +65,7 @@ public class DocumentMealPlanParser {
                               conversionService.convert(
                                   offer.select(".menu-prices"), PriceDto.class))
                           .provenance(offer.select(".menu-provenance").text())
+                          .dietaryRestriction(extractDietaryRestriction(offer))
                           .build())
               .collect(Collectors.toList());
 
@@ -78,5 +77,22 @@ public class DocumentMealPlanParser {
     }
 
     return new MealPlansDto(plans);
+  }
+
+  private DietaryRestriction extractDietaryRestriction(Element offer) {
+    final var labels = offer.selectFirst(".menu-labels");
+    if (labels == null) {
+      return null;
+    }
+
+    for (Element child : labels.children()) {
+      final var dietaryRestriction =
+          DietaryRestriction.determineDietaryRestrictionByClassNames(child.classNames());
+
+      if (dietaryRestriction != null) {
+        return dietaryRestriction;
+      }
+    }
+    return null;
   }
 }
