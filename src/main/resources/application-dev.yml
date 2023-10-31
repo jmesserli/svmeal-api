@@ -1,4 +1,8 @@
-spring:
+svmeal:
   cache:
-    jcache:
-      config: classpath:ehcache-dev.xml
+    restaurants:
+      expire-after-write: 5s
+    restaurant-dtos:
+      expire-after-write: 5s
+    meal-plan:
+      expire-after-write: 5s
