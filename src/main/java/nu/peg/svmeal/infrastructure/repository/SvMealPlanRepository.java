@@ -35,7 +35,7 @@ public class SvMealPlanRepository implements MealPlanRepository {
   public MealPlansDto getMealPlans(RestaurantDto restaurant) {
     log.debug("Scraping meal plan for restaurant {}", restaurant);
 
-    ResponseEntity<String> response = restTemplate.getForEntity(restaurant.getLink(), String.class);
+    ResponseEntity<String> response = restTemplate.getForEntity(restaurant.link(), String.class);
 
     if (response.getStatusCode() != HttpStatus.OK) {
       throw new ExternalException("Error while fetching meal plan");

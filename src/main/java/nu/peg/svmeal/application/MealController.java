@@ -45,7 +45,7 @@ public class MealController {
 
   private RestaurantDto findRestaurant(String shortcut) {
     return restaurantService.getRestaurantDtos().stream()
-        .filter(rest -> rest.getShortcut().equalsIgnoreCase(shortcut))
+        .filter(rest -> rest.shortcut().equalsIgnoreCase(shortcut))
         .findFirst()
         .orElseThrow(
             () ->

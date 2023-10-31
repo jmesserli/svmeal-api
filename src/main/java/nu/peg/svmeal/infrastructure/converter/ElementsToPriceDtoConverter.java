@@ -9,11 +9,7 @@ import org.jsoup.select.Elements;
 import org.springframework.core.convert.converter.Converter;
 import org.springframework.stereotype.Component;
 
-/**
- * TODO Short summary
- *
- * @author Joel Messerli @26.02.2017
- */
+/** Converts a list of price elements to an internal and external price */
 @Slf4j
 @Component
 public class ElementsToPriceDtoConverter implements Converter<Elements, PriceDto> {

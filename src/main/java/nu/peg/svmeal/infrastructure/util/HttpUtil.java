@@ -1,12 +1,15 @@
 package nu.peg.svmeal.infrastructure.util;
 
 import java.util.Map;
+import lombok.AccessLevel;
+import lombok.NoArgsConstructor;
 import org.springframework.http.HttpEntity;
 import org.springframework.http.HttpHeaders;
 import org.springframework.http.MediaType;
 import org.springframework.util.LinkedMultiValueMap;
 import org.springframework.util.MultiValueMap;
 
+@NoArgsConstructor(access = AccessLevel.PRIVATE)
 public final class HttpUtil {
 
   public static HttpEntity<MultiValueMap<String, String>> getPostFormData(

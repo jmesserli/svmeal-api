@@ -72,7 +72,10 @@ public final class DateUtil {
 
   public static Supplier<LocalDate> dateSequenceGenerator(LocalDate startDate) {
     final LocalDate[] lastDate = {startDate.minusDays(1)};
-    return () -> (lastDate[0] = lastDate[0].plusDays(1));
+    return () -> {
+      lastDate[0] = lastDate[0].plusDays(1);
+      return lastDate[0];
+    };
   }
 
   private DateUtil() {}

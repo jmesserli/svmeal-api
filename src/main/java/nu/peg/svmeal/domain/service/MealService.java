@@ -33,7 +33,7 @@ public class MealService {
     } catch (ExternalException | MealPlanParsingException e) {
       log.warn(
           "Meal plan unavailable for restaurant {} with dayOffset {}",
-          restaurant.getShortcut(),
+          restaurant.shortcut(),
           dayOffset);
       log.warn("Exception: ", e);
     }
@@ -53,13 +53,13 @@ public class MealService {
     final var mealPlans = repository.getMealPlans(restaurant);
 
     final LocalDate offsetDate =
-        mealPlans.getPlans().keySet().stream()
+        mealPlans.plans().keySet().stream()
             .sorted()
             .skip(dayOffset)
             .findFirst()
             .orElseThrow(() -> new MealPlanParsingException(NO_MEAL_PLAN_FOR_DAY));
 
-    return mealPlans.getPlans().get(offsetDate);
+    return mealPlans.plans().get(offsetDate);
   }
 
   public MealPlansDto getMealPlans(RestaurantDto restaurant) {
