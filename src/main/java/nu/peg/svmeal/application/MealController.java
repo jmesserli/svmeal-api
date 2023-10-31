@@ -1,11 +1,10 @@
 package nu.peg.svmeal.application;
 
-import java.util.List;
 import nu.peg.svmeal.domain.exceptions.UnknownRestaurantException;
 import nu.peg.svmeal.domain.model.AvailabilityDto;
 import nu.peg.svmeal.domain.model.MealPlanDto;
 import nu.peg.svmeal.domain.model.MealPlansDto;
-import nu.peg.svmeal.infrastructure.model.SvRestaurant;
+import nu.peg.svmeal.domain.model.RestaurantDto;
 import nu.peg.svmeal.domain.service.MealService;
 import nu.peg.svmeal.domain.service.RestaurantService;
 import org.springframework.beans.factory.annotation.Autowired;
@@ -49,9 +48,8 @@ public class MealController {
     return mealService.getAvailability(dayOffset, findRestaurant(restaurantString));
   }
 
-  private SvRestaurant findRestaurant(String shortcut) {
-    List<SvRestaurant> restaurants = restaurantService.getRestaurants();
-    return restaurants.stream()
+  private RestaurantDto findRestaurant(String shortcut) {
+    return restaurantService.getRestaurantDtos().stream()
         .filter(rest -> rest.getShortcut().equalsIgnoreCase(shortcut))
         .findFirst()
         .orElseThrow(

@@ -11,8 +11,8 @@ import nu.peg.svmeal.domain.exceptions.MealPlanParsingException;
 import nu.peg.svmeal.domain.model.AvailabilityDto;
 import nu.peg.svmeal.domain.model.MealPlanDto;
 import nu.peg.svmeal.domain.model.MealPlansDto;
+import nu.peg.svmeal.domain.model.RestaurantDto;
 import nu.peg.svmeal.infrastructure.converter.DocumentMealPlanParser;
-import nu.peg.svmeal.infrastructure.model.SvRestaurant;
 import org.jsoup.Jsoup;
 import org.jsoup.nodes.Document;
 import org.springframework.beans.factory.annotation.Autowired;
@@ -39,9 +39,9 @@ public class MealService {
   /**
    * Checks if a meal plan is available for the given dayOffset and restaurant
    *
-   * @see #getMealPlan(int, SvRestaurant)
+   * @see #getMealPlan(int, RestaurantDto)
    */
-  public AvailabilityDto getAvailability(int dayOffset, SvRestaurant restaurant) {
+  public AvailabilityDto getAvailability(int dayOffset, RestaurantDto restaurant) {
     try {
       getMealPlan(dayOffset, restaurant);
 
@@ -65,7 +65,7 @@ public class MealService {
    * @param restaurant Which restaurant website to scrape the meal plan from
    * @return The scraped {@link MealPlanDto}
    */
-  public MealPlanDto getMealPlan(int dayOffset, SvRestaurant restaurant) {
+  public MealPlanDto getMealPlan(int dayOffset, RestaurantDto restaurant) {
     final MealPlansDto mealPlans = getMealPlans(restaurant);
 
     final LocalDate offsetDate =
@@ -87,7 +87,7 @@ public class MealService {
    */
   @Cacheable(MEAL_PLAN)
   @CircuitBreaker(name = SV_MENU)
-  public MealPlansDto getMealPlans(SvRestaurant restaurant) {
+  public MealPlansDto getMealPlans(RestaurantDto restaurant) {
     log.debug("Scraping meal plan for restaurant {}", restaurant);
 
     ResponseEntity<String> response = restTemplate.getForEntity(restaurant.getLink(), String.class);

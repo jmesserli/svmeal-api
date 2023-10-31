@@ -12,16 +12,6 @@ public class CacheConfig {
   private final CacheProperties cacheProperties;
 
   @Bean
-  public CaffeineCache restaurantsCache() {
-    return new CaffeineCache(
-        CacheNames.RESTAURANTS,
-        Caffeine.newBuilder()
-            .maximumSize(cacheProperties.restaurants().maxSize())
-            .expireAfterWrite(cacheProperties.restaurants().expireAfterWrite())
-            .build());
-  }
-
-  @Bean
   public CaffeineCache restaurantDtos() {
     return new CaffeineCache(
         CacheNames.RESTAURANT_DTOS,
