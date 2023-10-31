@@ -38,9 +38,7 @@ public class DocumentMealPlanParser {
     Map<LocalDate, MealPlanDto> plans = new HashMap<>();
 
     List<String> dateStrings =
-        document.select(".day-nav ul li label span.date").stream()
-            .map(Element::text)
-            .collect(Collectors.toList());
+        document.select(".day-nav ul li label span.date").stream().map(Element::text).toList();
 
     for (int dayOffset = 0; dayOffset < 7; dayOffset++) {
       Elements menuPlanTab = document.select(String.format(MENU_PLAN_TAB_FORMAT, dayOffset + 1));
@@ -60,14 +58,14 @@ public class DocumentMealPlanParser {
                           .trimmings(
                               Arrays.stream(offer.select(".menu-description").html().split("<br>"))
                                   .map(String::trim)
-                                  .collect(Collectors.toList()))
+                                  .toList())
                           .price(
                               conversionService.convert(
                                   offer.select(".menu-prices"), PriceDto.class))
                           .provenance(offer.select(".menu-provenance").text())
                           .dietaryRestriction(extractDietaryRestriction(offer))
                           .build())
-              .collect(Collectors.toList());
+              .toList();
 
       plans.put(localDate, new MealPlanDto(localDate, offerDtos));
     }

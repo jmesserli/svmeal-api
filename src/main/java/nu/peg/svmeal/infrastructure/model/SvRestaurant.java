@@ -5,7 +5,6 @@ import java.util.regex.Matcher;
 import java.util.regex.Pattern;
 import lombok.Data;
 import lombok.Getter;
-import lombok.With;
 
 @Data
 public class SvRestaurant {
