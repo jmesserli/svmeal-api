@@ -1,5 +1,6 @@
 package nu.peg.svmeal.application;
 
+import lombok.RequiredArgsConstructor;
 import nu.peg.svmeal.domain.exceptions.UnknownRestaurantException;
 import nu.peg.svmeal.domain.model.AvailabilityDto;
 import nu.peg.svmeal.domain.model.MealPlanDto;
@@ -7,25 +8,19 @@ import nu.peg.svmeal.domain.model.MealPlansDto;
 import nu.peg.svmeal.domain.model.RestaurantDto;
 import nu.peg.svmeal.domain.service.MealService;
 import nu.peg.svmeal.domain.service.RestaurantService;
-import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.web.bind.annotation.CrossOrigin;
 import org.springframework.web.bind.annotation.GetMapping;
 import org.springframework.web.bind.annotation.PathVariable;
 import org.springframework.web.bind.annotation.RequestMapping;
 import org.springframework.web.bind.annotation.RestController;
 
-@RestController
 @CrossOrigin
+@RestController
 @RequestMapping("/api/restaurant")
+@RequiredArgsConstructor
 public class MealController {
   private final MealService mealService;
   private final RestaurantService restaurantService;
-
-  @Autowired
-  public MealController(MealService mealService, RestaurantService restaurantService) {
-    this.mealService = mealService;
-    this.restaurantService = restaurantService;
-  }
 
   @GetMapping("/{restaurant}/meal")
   public MealPlansDto getRestaurantMeal(@PathVariable("restaurant") String restaurantString) {

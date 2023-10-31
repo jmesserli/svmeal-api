@@ -1,5 +1,6 @@
 package nu.peg.svmeal.infrastructure.repository;
 
+import static nu.peg.svmeal.infrastructure.config.CacheNames.RESTAURANT_DTOS;
 import static nu.peg.svmeal.infrastructure.config.CircuitBreakers.SV_SEARCH;
 
 import com.fasterxml.jackson.core.JsonProcessingException;
@@ -19,6 +20,7 @@ import nu.peg.svmeal.infrastructure.model.SvRestaurant;
 import nu.peg.svmeal.infrastructure.model.svsearch.RestaurantSearchResponseCallbackDto;
 import nu.peg.svmeal.infrastructure.model.svsearch.RestaurantSearchResponseDto;
 import nu.peg.svmeal.infrastructure.util.HttpUtil;
+import org.springframework.cache.annotation.Cacheable;
 import org.springframework.core.convert.ConversionService;
 import org.springframework.http.HttpEntity;
 import org.springframework.http.ResponseEntity;
@@ -38,6 +40,7 @@ public class SvRestaurantRepository implements RestaurantRepository {
   private final ConversionService converter;
 
   @Override
+  @Cacheable(RESTAURANT_DTOS)
   @CircuitBreaker(name = SV_SEARCH)
   public List<RestaurantDto> getAllRestaurants() {
     log.info("Fetching restaurant list");
