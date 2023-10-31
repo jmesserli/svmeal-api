@@ -15,7 +15,7 @@ resilience4j:
         waitDurationInOpenState: 5m
 
 svmeal:
-  user-agent: sv-meal/4.1.1 github.com/jmesserli/svmeal-api
+  user-agent-link: github.com/jmesserli/svmeal-api
   cache:
     restaurants:
       max-size: 1
@@ -26,3 +26,20 @@ svmeal:
     meal-plan:
       max-size: 50
       expire-after-write: 15m
+
+management:
+  endpoints:
+    web:
+      exposure:
+        include: health,info
+  endpoint:
+    health:
+      show-details: always
+
+  health:
+    circuitbreakers:
+      enabled: true
+
+logging:
+  level:
+    nu.peg.svmeal: DEBUG
