@@ -3,29 +3,30 @@ package nu.peg.svmeal.infrastructure.model;
 import com.fasterxml.jackson.annotation.JsonIgnore;
 import java.util.regex.Matcher;
 import java.util.regex.Pattern;
-import lombok.Data;
 import lombok.Getter;
+import lombok.Value;
+import lombok.With;
 
-@Data
+@Value
 public class SvRestaurant {
   private static final Pattern linkShortcutPattern =
       Pattern.compile("^https?://(.*)\\.sv-restaurant\\.ch.*$");
 
-  private String id;
-  private String name;
-  private String address;
-  private String type;
-  private String distance;
-  private String distanceRender;
-  private String lat;
-  private String lng;
-  private String link;
-  private String linkLabel;
-  private boolean rendered;
+  String id;
+  String name;
+  String address;
+  String type;
+  String distance;
+  String distanceRender;
+  String lat;
+  String lng;
+  @With String link;
+  String linkLabel;
+  boolean rendered;
 
   @JsonIgnore
   @Getter(lazy = true)
-  private final String shortcut = makeShortcut();
+  String shortcut = makeShortcut();
 
   private String makeShortcut() {
     Matcher matcher = linkShortcutPattern.matcher(link);
