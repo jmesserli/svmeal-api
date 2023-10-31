@@ -1,11 +1,5 @@
 package nu.peg.svmeal.domain.model;
 
-import lombok.AllArgsConstructor;
-import lombok.Data;
+import java.io.Serializable;
 
-@Data
-@AllArgsConstructor
-public class PriceDto {
-  private double internalPrice;
-  private double externalPrice;
-}
+public record PriceDto(double internalPrice, double externalPrice) implements Serializable {}
