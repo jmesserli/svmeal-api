@@ -66,20 +66,22 @@ public class SvRestaurantRepository implements RestaurantRepository {
 
     return searchResponseCallback.getList().stream()
         .filter(rest -> !rest.getLink().contains("sv-group") && !rest.getLink().isEmpty())
-        .peek(SvRestaurantRepository::upgradeRestaurantLinkToHttps)
+        .map(SvRestaurantRepository::upgradeRestaurantLinkToHttps)
         .map(restaurant -> converter.convert(restaurant, RestaurantDto.class))
         .toList();
   }
 
-  private static void upgradeRestaurantLinkToHttps(SvRestaurant rest) {
+  private static SvRestaurant upgradeRestaurantLinkToHttps(SvRestaurant rest) {
     try {
       URL url = new URI(rest.getLink()).toURL();
 
       if (url.getProtocol().equals("http")) {
-        rest.setLink(String.format("https%s", rest.getLink().substring(4)));
+        return rest.withLink(String.format("https%s", rest.getLink().substring(4)));
       }
     } catch (Exception e) {
       log.warn("Failed to parse restaurant link {}", rest.getLink());
     }
+
+    return rest;
   }
 }
