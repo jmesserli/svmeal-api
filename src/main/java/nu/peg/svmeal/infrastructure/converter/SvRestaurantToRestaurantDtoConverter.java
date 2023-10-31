@@ -8,7 +8,7 @@ import org.springframework.stereotype.Component;
 @Component
 public class SvRestaurantToRestaurantDtoConverter
     implements Converter<SvRestaurant, RestaurantDto> {
-  public static final String PUBLIC_TYPE = "\u00f6ffentlich";
+  public static final String PUBLIC_TYPE = "öffentlich";
 
   @Override
   public RestaurantDto convert(SvRestaurant from) {

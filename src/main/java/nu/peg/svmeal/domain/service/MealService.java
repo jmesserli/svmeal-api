@@ -6,17 +6,15 @@ import static nu.peg.svmeal.infrastructure.config.CircuitBreakers.SV_MENU;
 import io.github.resilience4j.circuitbreaker.annotation.CircuitBreaker;
 import java.time.LocalDate;
 import lombok.extern.slf4j.Slf4j;
-import nu.peg.svmeal.infrastructure.converter.DocumentMealPlanParser;
 import nu.peg.svmeal.domain.exceptions.ExternalException;
 import nu.peg.svmeal.domain.exceptions.MealPlanParsingException;
 import nu.peg.svmeal.domain.model.AvailabilityDto;
 import nu.peg.svmeal.domain.model.MealPlanDto;
 import nu.peg.svmeal.domain.model.MealPlansDto;
+import nu.peg.svmeal.infrastructure.converter.DocumentMealPlanParser;
 import nu.peg.svmeal.infrastructure.model.SvRestaurant;
 import org.jsoup.Jsoup;
 import org.jsoup.nodes.Document;
-import org.slf4j.Logger;
-import org.slf4j.LoggerFactory;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.cache.annotation.Cacheable;
 import org.springframework.http.HttpStatus;
@@ -28,7 +26,6 @@ import org.springframework.web.client.RestTemplate;
 @Service
 public class MealService {
   private static final String NO_MEALPLAN_AVAILABLE_ERROR = "No meal plan available for this date";
-  private static final Logger LOGGER = LoggerFactory.getLogger(MealService.class);
 
   private final DocumentMealPlanParser docParser;
   private final RestTemplate restTemplate;
@@ -91,7 +88,7 @@ public class MealService {
   @Cacheable(MEAL_PLAN)
   @CircuitBreaker(name = SV_MENU)
   public MealPlansDto getMealPlans(SvRestaurant restaurant) {
-    LOGGER.debug("Scraping meal plan for restaurant {}", restaurant);
+    log.debug("Scraping meal plan for restaurant {}", restaurant);
 
     ResponseEntity<String> response = restTemplate.getForEntity(restaurant.getLink(), String.class);
 
