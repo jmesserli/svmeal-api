@@ -1,6 +1,6 @@
 package nu.peg.svmeal;
 
-import nu.peg.svmeal.config.CacheProperties;
+import nu.peg.svmeal.infrastructure.config.CacheProperties;
 import org.springframework.boot.SpringApplication;
 import org.springframework.boot.autoconfigure.SpringBootApplication;
 import org.springframework.boot.context.properties.EnableConfigurationProperties;
