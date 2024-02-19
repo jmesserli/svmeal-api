@@ -38,6 +38,10 @@ public class DocumentMealPlanParser {
     List<String> dateStrings =
         document.select(".day-nav ul li label span.date").stream().map(Element::text).toList();
 
+    if (dateStrings.isEmpty()) {
+      return null;
+    }
+
     for (int dayOffset = 0; dayOffset < 7; dayOffset++) {
       Elements menuPlanTab = document.select(String.format(MENU_PLAN_TAB_FORMAT, dayOffset + 1));
       if (menuPlanTab.isEmpty()) {
